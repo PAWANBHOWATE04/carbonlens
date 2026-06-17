@@ -29,12 +29,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Start listening
-const server = app.listen(PORT, () => {
-  console.log(`===================================================`);
-  console.log(`🌲 CarbonLens Server is running on port ${PORT}`);
-  console.log(`🔗 Access locally at: http://localhost:${PORT}`);
-  console.log(`===================================================`);
-});
+// Start listening if not running on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`===================================================`);
+    console.log(`🌲 CarbonLens Server is running on port ${PORT}`);
+    console.log(`🔗 Access locally at: http://localhost:${PORT}`);
+    console.log(`===================================================`);
+  });
+}
 
-module.exports = server;
+module.exports = app;
