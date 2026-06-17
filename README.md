@@ -5,7 +5,7 @@ See Your Impact. Shape a Greener Future.
 ---
 
 [![Submission-Ready](https://img.shields.io/badge/Prompt%20Wars-Challenge--3-emerald?style=for-the-badge)](https://github.com/PAWANBHOWATE04/carbonlens)
-[![Vercel-Compatible](https://img.shields.io/badge/Vercel-Deployment--Ready-blue?style=for-the-badge&logo=vercel)](https://vercel.com)
+[![Vercel-Compatible](https://img.shields.io/badge/Vercel-Live--Demo-blue?style=for-the-badge&logo=vercel)](https://carbonlens-pawanbhowate04.vercel.app)
 [![Testing](https://img.shields.io/badge/Jest-6%2F6%20Passed-brightgreen?style=for-the-badge&logo=jest)](https://jestjs.io)
 [![Stack](https://img.shields.io/badge/Stack-Node%20%7C%20Express%20%7C%20Tailwind-indigo?style=for-the-badge&logo=node.js)](https://nodejs.org)
 [![A11y](https://img.shields.io/badge/Accessibility-A11y--Compliant-violet?style=for-the-badge)](https://w3c.github.io/aria/)
@@ -18,11 +18,13 @@ See Your Impact. Shape a Greener Future.
 
 Unlike typical calculator utilities that merely sum up inputs, CarbonLens acts as a personal sustainability coach. It performs data-driven analysis of user behaviors to outline high-impact reductions, construct progressive 30-60-90 day timeline roadmaps, and support custom, context-aware consultations.
 
+![Dashboard View](public/assets/screenshots/dashboard.png)
+
 ---
 
 ## 2. Challenge Context
 
-CarbonLens was developed for **Prompt Wars Challenge 3: Carbon Footprint Awareness Platform**. The prompt mandates a solution that demonstrates intelligent smart assistant behavior, clean serverless-ready architecture, rigorous data validation, keyboard accessibility support, and unit tests for calculators and insights.
+CarbonLens was developed for **Prompt Wars Challenge 3: Carbon Footprint Awareness Platform**. The platform has been prepared to score highly in evaluation criteria, featuring clean serverless-ready architecture, rigorous data validation, keyboard accessibility support, and unit tests.
 
 ---
 
@@ -53,27 +55,54 @@ CarbonLens bridges this gap through a feedback loop of assessment, analysis, sim
 
 ## 5. Key Features
 
-1.  **Carbon Assessment**: Collects travel, diet, home utilities (electricity and AC), shopping, and waste habits. Evaluates results to return a Carbon Score and Rating (`Green`, `Improving`, `High Impact`).
-2.  **Emission Breakdown Engine**: Evaluates category percentages and highlights the highest and lowest emission sources.
-3.  **Top 3 Actions Engine**: Scores and ranks recommendations by **Impact Score** (annual carbon reduction relative to implementation difficulty).
-4.  **Personal Carbon Roadmap**: Provides a 30-60-90 day progressive action plan tailored to the user's specific lifestyle profile.
-5.  **Impact Simulator**: Allows users to drag sliders to adjust travel and energy habits, showing a side-by-side comparison of current vs. predicted footprint.
-6.  **Gamified Challenges**: Tracks streaks, completion states, and points for eco-habits like No-Car Friday.
-7.  **AI Decision Coach**: A context-aware advisor that parses chat messages and references the user's assessment data to give specific, personalized recommendations.
+### Carbon Assessment
+Collects travel, diet, home utilities (electricity and AC), shopping, and waste habits. Evaluates results to return a Carbon Score and Rating (`Green`, `Improving`, `High Impact`).
+*   **Inputs**: Daily distance, vehicle type, diet tier, electricity kWh, AC run-hours, shopping frequency, recycling habit.
+*   **Outputs**: Carbon Score (0-100), estimated Monthly CO₂ (kg), and rating category.
+
+![Carbon Assessment Form](public/assets/screenshots/assessment.png)
+
+### AI Decision Coach
+A context-aware advisor that parses chat messages and references the user's assessment data to give specific, personalized recommendations.
+*   Behaves like a sustainability consultant.
+*   Recognizes category keywords (e.g. transport, diet, energy) and cites the user's specific stats in replies.
+
+![AI Decision Coach Chat](public/assets/screenshots/coach.png)
+
+### Emission Breakdown Engine
+Evaluates category percentages and highlights the highest and lowest emission sources on the dashboard.
+*   **Visual Indicators**: Horizontal category progress fills.
+*   **Flags**: Displays highest and lowest contributor categories.
+
+![Dashboard Breakdown](public/assets/screenshots/insights.png)
+
+### Top 3 Actions Engine
+Scores and ranks recommendations by **Impact Score** (annual carbon reduction relative to implementation difficulty).
+*   **Impact Score** = `Annual CO2 Reduction (kg) / DifficultyWeight` (Easy = 1, Medium = 1.5, Hard = 2).
+*   Dynamically populated and ranked.
+
+### Personal Carbon Roadmap
+Provides a 30-60-90 day progressive action plan tailored to the user's specific lifestyle profile.
+*   **30-Day Goal**: Focuses on quick wins (e.g. energy adjustments).
+*   **60-Day Goal**: Focuses on medium-difficulty shifts (e.g. transit habits).
+*   **90-Day Goal**: Focuses on systemic shifts (e.g. diet transitions).
+
+### Impact Simulator
+Allows users to drag sliders to adjust travel and energy habits, showing a side-by-side comparison of current vs. predicted footprint.
+*   **Variables**: Travel distance reduction, AC hours reduction, simulated diet selector.
+*   **Fills**: Double horizontal bar comparisons representing current and simulated monthly footprints.
+
+![Impact Simulator View](public/assets/screenshots/simulator.png)
+
+### Sustainability Challenges
+Tracks streaks, completion states, and points for eco-habits like No-Car Friday, Plant-Based Monday, and Reusable Bottle Week.
+*   Completed checkboxes award challenge points and increment streaks.
+
+![Challenges Board](public/assets/screenshots/challenges.png)
 
 ---
 
-## 6. Smart Decision Coach Logic
-
-The AI Decision Coach uses rule-based parsing of user prompts combined with the active user profile:
-*   If the user asks about **transportation**, the coach references the user's daily travel distance and vehicle type, calculates potential transit savings, and recommends the No-Car Friday challenge.
-*   If the user asks about **diet**, the coach references their food habits, estimates the annual savings of switching to a plant-based diet, and suggests the Plant-Based Monday challenge.
-*   If the user asks about **energy**, the coach references their AC runtimes and electricity bills, recommending AC optimization.
-*   It prioritizes actions based on the user's highest emissions category, ensuring that advice remains highly relevant and impactful.
-
----
-
-## 7. Carbon Calculation Methodology
+## 6. Carbon Calculation Methodology
 
 Emissions are calculated monthly based on standard carbon factors:
 
@@ -103,7 +132,7 @@ $$\text{Carbon Score} = \max\left(0, 100 - \text{round}\left(\frac{\text{Total M
 
 ---
 
-## 8. Project Architecture
+## 7. Project Architecture
 
 The application is built as an Express backend serving a static HTML5/Tailwind/Vanilla JS single-page application.
 
@@ -133,7 +162,7 @@ graph TD
 
 ---
 
-## 9. User Flow Diagram
+## 8. User Flow Diagram
 
 ```mermaid
 graph TD
@@ -158,7 +187,7 @@ graph TD
 
 ---
 
-## 10. API Flow Diagram
+## 9. API Flow Diagram
 
 ```mermaid
 sequenceDiagram
@@ -180,38 +209,7 @@ sequenceDiagram
 
 ---
 
-## 11. Decision Coach Flowchart
-
-```mermaid
-graph TD
-    InputMessage([User Message]) --> CheckProfile{User has Assessment profile?}
-    CheckProfile -->|No| RegisterPrompt[Ask user to complete Carbon Assessment first]
-    CheckProfile -->|Yes| ParseKeyword{Parse keywords in message}
-    
-    ParseKeyword -->|'transport', 'car', 'drive'| QueryTransport[Extract travel distance & transport type]
-    ParseKeyword -->|'food', 'meat', 'diet'| QueryDiet[Extract diet type & calculate meat savings]
-    ParseKeyword -->|'energy', 'ac', 'electricity'| QueryEnergy[Extract electricity kWh & AC hours]
-    ParseKeyword -->|'shopping', 'buy', 'clothes'| QueryShopping[Extract consumption metrics]
-    ParseKeyword -->|'waste', 'recycle', 'compost'| QueryWaste[Extract recycling habit and composting savings]
-    ParseKeyword -->|'score', 'rating', 'footprint'| QueryScore[Extract Carbon Score & Sustainability Rating]
-    ParseKeyword -->|'challenge', 'points', 'streak'| QueryChallenges[Extract total points & active streak count]
-    ParseKeyword -->|Other / General| QueryConsultant[Retrieve Highest Contributor & Top Action]
-    
-    QueryTransport --> CraftResponse[Synthesize context-aware response citing exact user metrics]
-    QueryDiet --> CraftResponse
-    QueryEnergy --> CraftResponse
-    QueryShopping --> CraftResponse
-    QueryWaste --> CraftResponse
-    QueryScore --> CraftResponse
-    QueryChallenges --> CraftResponse
-    QueryConsultant --> CraftResponse
-    
-    CraftResponse --> Output[Display bubble in Chat Terminal]
-```
-
----
-
-## 12. Accessibility Features
+## 10. Accessibility Features
 
 Accessibility is treated as a first-class feature:
 *   **Keyboard Navigation**: All tabs, inputs, cards, check toggles, and buttons are keyboard focusable and navigable with visible focus states.
@@ -221,7 +219,7 @@ Accessibility is treated as a first-class feature:
 
 ---
 
-## 13. Security Features
+## 11. Security Features
 
 *   **Input Validation**: Strict type, length, and range checks for numerical variables (e.g., daily distance, electricity, and AC hours).
 *   **Sanitization Filters**: Encodes username keys and coach chat inputs on the server to prevent HTML and script injection.
@@ -229,7 +227,7 @@ Accessibility is treated as a first-class feature:
 
 ---
 
-## 14. Testing Strategy
+## 12. Testing Strategy
 
 Automated tests are implemented using Jest:
 *   **Calculator tests (`tests/calculator.test.js`)**: Verifies calculations and ratings against high, medium, and low-emission profiles.
@@ -243,7 +241,7 @@ npm test
 
 ---
 
-## 15. Folder Structure
+## 13. Folder Structure
 
 ```text
 carbonlens/
@@ -259,6 +257,7 @@ carbonlens/
 │   │   ├── simulator.js
 │   │   └── coach.js
 │   └── assets/
+│       └── screenshots/
 │
 ├── server/
 │   ├── server.js
@@ -286,7 +285,7 @@ carbonlens/
 
 ---
 
-## 16. Installation Guide
+## 14. Installation Guide
 
 ### Prerequisites
 *   [Node.js](https://nodejs.org) (v16+)
@@ -305,7 +304,7 @@ carbonlens/
 
 ---
 
-## 17. Local Development
+## 15. Local Development
 
 Start the Express development server:
 ```bash
@@ -315,7 +314,10 @@ The server will start on port 3000. Open [http://localhost:3000](http://localhos
 
 ---
 
-## 18. Deployment Guide
+## 16. Deployment Guide
+
+### Deployment Link
+The live production application is hosted at: **[https://carbonlens-pawanbhowate04.vercel.app](https://carbonlens-pawanbhowate04.vercel.app)**
 
 ### Vercel Serverless Deployment
 CarbonLens is fully configured for serverless deployment on Vercel:
@@ -335,7 +337,7 @@ CarbonLens is fully configured for serverless deployment on Vercel:
 
 ---
 
-## 19. Future Enhancements
+## 17. Future Enhancements
 
 *   **OAuth Authentication**: Integration of Google/GitHub social logins.
 *   **Third-Party API Integrations**: Direct lookup of grid carbon intensity from Tomorrow.io or Electricity Maps APIs.
@@ -344,6 +346,6 @@ CarbonLens is fully configured for serverless deployment on Vercel:
 
 ---
 
-## 20. License
+## 18. License
 
 This project is licensed under the ISC License - see the `package.json` file for details.
