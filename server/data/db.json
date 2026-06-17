@@ -3,56 +3,47 @@
     "demo_user": {
       "username": "demo_user",
       "assessment": {
-        "transportDistance": 40,
+        "transportDistance": 10,
         "transportType": "gasoline_car",
-        "dietType": "heavy_meat",
-        "electricity": 300,
-        "acHours": 6,
+        "dietType": "mixed",
+        "electricity": 250,
+        "acHours": 4,
         "shopping": "moderate",
         "recycling": "sometimes"
       },
       "results": {
         "breakdown": {
-          "transportation": 216,
-          "food": 250,
-          "energy": 228,
+          "transportation": 54,
+          "food": 150,
+          "energy": 172,
           "shopping": 100,
           "waste": 25
         },
         "percentages": {
-          "transportation": 26,
-          "food": 31,
-          "energy": 28,
-          "shopping": 12,
-          "waste": 3
+          "transportation": 11,
+          "food": 30,
+          "energy": 34,
+          "shopping": 20,
+          "waste": 5
         },
-        "totalMonthlyCO2": 819,
-        "carbonScore": 45,
+        "totalMonthlyCO2": 501,
+        "carbonScore": 67,
         "rating": "Improving"
       },
       "insights": {
         "highestContributor": {
-          "key": "food",
-          "name": "Food & Diet",
-          "percentage": 31,
-          "monthlyCO2": 250
+          "key": "energy",
+          "name": "Home Energy",
+          "percentage": 34,
+          "monthlyCO2": 172
         },
         "lowestContributor": {
           "key": "waste",
           "name": "Waste & Recycling",
-          "percentage": 3,
+          "percentage": 5,
           "monthlyCO2": 25
         },
         "topActions": [
-          {
-            "id": "diet_shift",
-            "name": "Adopt a Plant-Based Diet",
-            "category": "food",
-            "difficulty": "Hard",
-            "annualReduction": 2040,
-            "impactScore": 1020,
-            "description": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make."
-          },
           {
             "id": "shopping_mindful",
             "name": "Shift to Circular & Second-hand Shopping",
@@ -63,13 +54,22 @@
             "description": "Transition to circular consumption: buy second-hand, rent clothing, or implement a 30-day cooling-off period before purchasing new items."
           },
           {
-            "id": "transport_shift",
-            "name": "Use Public Transit or Carpool",
-            "category": "transportation",
-            "difficulty": "Medium",
-            "annualReduction": 806,
-            "impactScore": 537.3,
-            "description": "Replace 3 days of weekly car trips with public transport, walking, or cycling. Saving is based on your daily travel of 40 km."
+            "id": "ac_optimize",
+            "name": "Optimize Air Conditioning",
+            "category": "energy",
+            "difficulty": "Easy",
+            "annualReduction": 432,
+            "impactScore": 432,
+            "description": "Reduce daily AC runtime by 2 hours (or set thermostat 2°C higher) to cut grid load during peak summer hours."
+          },
+          {
+            "id": "diet_shift",
+            "name": "Adopt a Plant-Based Diet",
+            "category": "food",
+            "difficulty": "Hard",
+            "annualReduction": 840,
+            "impactScore": 420,
+            "description": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make."
           }
         ],
         "roadmap": {
@@ -88,11 +88,11 @@
           "goal90": {
             "action": "Adopt a Plant-Based Diet",
             "benefit": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make.",
-            "reduction": 2040,
+            "reduction": 840,
             "difficulty": "Hard"
           }
         },
-        "coachSummary": "Your diet is currently your leading source of emissions, accounting for 31% of your carbon footprint. Shifting from heavy meat meals to plant-based days will make a major, immediate dent in your output."
+        "coachSummary": "Household energy usage contributes 34% of your emissions. Reducing AC operation times, installing LED lighting, and switching off standby appliances is your best starting path."
       },
       "challenges": [
         {

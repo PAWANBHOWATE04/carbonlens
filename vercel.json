@@ -1,13 +1,13 @@
 {
   "version": 2,
-  "cleanUrls": true,
+  "cleanUrls": false,
   "builds": [
     {
       "src": "server/server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "public/**/*",
+      "src": "public/**/*.html",
       "use": "@vercel/static"
     }
   ],
@@ -25,8 +25,13 @@
       "dest": "public/js/$1"
     },
     {
+      "src": "/",
+      "dest": "public/index.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "public/index.html"
     }
   ]
 }
+
