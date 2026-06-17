@@ -1,0 +1,330 @@
+{
+  "users": {
+    "demo_user": {
+      "username": "demo_user",
+      "assessment": {
+        "transportDistance": 40,
+        "transportType": "gasoline_car",
+        "dietType": "heavy_meat",
+        "electricity": 300,
+        "acHours": 6,
+        "shopping": "moderate",
+        "recycling": "sometimes"
+      },
+      "results": {
+        "breakdown": {
+          "transportation": 216,
+          "food": 250,
+          "energy": 228,
+          "shopping": 100,
+          "waste": 25
+        },
+        "percentages": {
+          "transportation": 26,
+          "food": 31,
+          "energy": 28,
+          "shopping": 12,
+          "waste": 3
+        },
+        "totalMonthlyCO2": 819,
+        "carbonScore": 45,
+        "rating": "Improving"
+      },
+      "insights": {
+        "highestContributor": {
+          "key": "food",
+          "name": "Food & Diet",
+          "percentage": 31,
+          "monthlyCO2": 250
+        },
+        "lowestContributor": {
+          "key": "waste",
+          "name": "Waste & Recycling",
+          "percentage": 3,
+          "monthlyCO2": 25
+        },
+        "topActions": [
+          {
+            "id": "diet_shift",
+            "name": "Adopt a Plant-Based Diet",
+            "category": "food",
+            "difficulty": "Hard",
+            "annualReduction": 2040,
+            "impactScore": 1020,
+            "description": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make."
+          },
+          {
+            "id": "shopping_mindful",
+            "name": "Shift to Circular & Second-hand Shopping",
+            "category": "shopping",
+            "difficulty": "Medium",
+            "annualReduction": 840,
+            "impactScore": 560,
+            "description": "Transition to circular consumption: buy second-hand, rent clothing, or implement a 30-day cooling-off period before purchasing new items."
+          },
+          {
+            "id": "transport_shift",
+            "name": "Use Public Transit or Carpool",
+            "category": "transportation",
+            "difficulty": "Medium",
+            "annualReduction": 806,
+            "impactScore": 537.3,
+            "description": "Replace 3 days of weekly car trips with public transport, walking, or cycling. Saving is based on your daily travel of 40 km."
+          }
+        ],
+        "roadmap": {
+          "goal30": {
+            "action": "Optimize Air Conditioning",
+            "benefit": "Reduce daily AC runtime by 2 hours (or set thermostat 2°C higher) to cut grid load during peak summer hours.",
+            "reduction": 432,
+            "difficulty": "Easy"
+          },
+          "goal60": {
+            "action": "Shift to Circular & Second-hand Shopping",
+            "benefit": "Transition to circular consumption: buy second-hand, rent clothing, or implement a 30-day cooling-off period before purchasing new items.",
+            "reduction": 840,
+            "difficulty": "Medium"
+          },
+          "goal90": {
+            "action": "Adopt a Plant-Based Diet",
+            "benefit": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make.",
+            "reduction": 2040,
+            "difficulty": "Hard"
+          }
+        },
+        "coachSummary": "Your diet is currently your leading source of emissions, accounting for 31% of your carbon footprint. Shifting from heavy meat meals to plant-based days will make a major, immediate dent in your output."
+      },
+      "challenges": [
+        {
+          "id": "no_car_friday",
+          "name": "No-Car Friday",
+          "points": 50,
+          "completed": false,
+          "streak": 0
+        },
+        {
+          "id": "plant_based_monday",
+          "name": "Plant-Based Monday",
+          "points": 40,
+          "completed": false,
+          "streak": 0
+        },
+        {
+          "id": "reusable_bottle",
+          "name": "Reusable Bottle Week",
+          "points": 20,
+          "completed": false,
+          "streak": 0
+        }
+      ],
+      "points": 0,
+      "streak": 0,
+      "chatHistory": [
+        {
+          "role": "user",
+          "text": "How can I reduce my transportation emissions?",
+          "timestamp": "2026-06-17T08:24:56.116Z"
+        },
+        {
+          "role": "coach",
+          "text": "I see you currently travel **20 km daily** using a **gasoline car**. This transportation habit produces **108 kg CO₂** per month, representing **19%** of your total footprint. \n\nSince transportation is a significant factor in your lifestyle, Try carpooling or combining trips to optimize your current vehicle usage. Shifting just 2 days of weekly travel to active transit (walking or cycling) or public transport is an excellent next step. You could also try joining our **No-Car Friday** challenge to build the habit.",
+          "timestamp": "2026-06-17T08:24:56.116Z"
+        },
+        {
+          "role": "user",
+          "text": "How can I reduce my transportation emissions?",
+          "timestamp": "2026-06-17T08:30:27.614Z"
+        },
+        {
+          "role": "coach",
+          "text": "I see you currently travel **40 km daily** using a **gasoline car**. This transportation habit produces **216 kg CO₂** per month, representing **26%** of your total footprint. \n\nSince transportation is a significant factor in your lifestyle, I recommend taking action: **Use Public Transit or Carpool**. By doing this, you could reduce your annual emissions by approximately **806 kg CO₂**! Shifting just 2 days of weekly travel to active transit (walking or cycling) or public transport is an excellent next step. You could also try joining our **No-Car Friday** challenge to build the habit.",
+          "timestamp": "2026-06-17T08:30:27.614Z"
+        }
+      ]
+    },
+    "eco_warrior": {
+      "username": "eco_warrior",
+      "assessment": null,
+      "results": null,
+      "insights": null,
+      "challenges": [
+        {
+          "id": "no_car_friday",
+          "name": "No-Car Friday",
+          "points": 50,
+          "completed": false,
+          "streak": 0
+        },
+        {
+          "id": "plant_based_monday",
+          "name": "Plant-Based Monday",
+          "points": 40,
+          "completed": false,
+          "streak": 0
+        },
+        {
+          "id": "reusable_bottle",
+          "name": "Reusable Bottle Week",
+          "points": 20,
+          "completed": false,
+          "streak": 0
+        }
+      ],
+      "points": 0,
+      "streak": 0,
+      "chatHistory": []
+    },
+    "demo_1": {
+      "username": "demo_1",
+      "assessment": {
+        "transportDistance": 40,
+        "transportType": "gasoline_car",
+        "dietType": "heavy_meat",
+        "electricity": 300,
+        "acHours": 6,
+        "shopping": "moderate",
+        "recycling": "sometimes"
+      },
+      "results": {
+        "breakdown": {
+          "transportation": 216,
+          "food": 250,
+          "energy": 228,
+          "shopping": 100,
+          "waste": 25
+        },
+        "percentages": {
+          "transportation": 26,
+          "food": 31,
+          "energy": 28,
+          "shopping": 12,
+          "waste": 3
+        },
+        "totalMonthlyCO2": 819,
+        "carbonScore": 45,
+        "rating": "Improving"
+      },
+      "insights": {
+        "highestContributor": {
+          "key": "food",
+          "name": "Food & Diet",
+          "percentage": 31,
+          "monthlyCO2": 250
+        },
+        "lowestContributor": {
+          "key": "waste",
+          "name": "Waste & Recycling",
+          "percentage": 3,
+          "monthlyCO2": 25
+        },
+        "topActions": [
+          {
+            "id": "diet_shift",
+            "name": "Adopt a Plant-Based Diet",
+            "category": "food",
+            "difficulty": "Hard",
+            "annualReduction": 2040,
+            "impactScore": 1020,
+            "description": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make."
+          },
+          {
+            "id": "shopping_mindful",
+            "name": "Shift to Circular & Second-hand Shopping",
+            "category": "shopping",
+            "difficulty": "Medium",
+            "annualReduction": 840,
+            "impactScore": 560,
+            "description": "Transition to circular consumption: buy second-hand, rent clothing, or implement a 30-day cooling-off period before purchasing new items."
+          },
+          {
+            "id": "transport_shift",
+            "name": "Use Public Transit or Carpool",
+            "category": "transportation",
+            "difficulty": "Medium",
+            "annualReduction": 806,
+            "impactScore": 537.3,
+            "description": "Replace 3 days of weekly car trips with public transport, walking, or cycling. Saving is based on your daily travel of 40 km."
+          }
+        ],
+        "roadmap": {
+          "goal30": {
+            "action": "Optimize Air Conditioning",
+            "benefit": "Reduce daily AC runtime by 2 hours (or set thermostat 2°C higher) to cut grid load during peak summer hours.",
+            "reduction": 432,
+            "difficulty": "Easy"
+          },
+          "goal60": {
+            "action": "Shift to Circular & Second-hand Shopping",
+            "benefit": "Transition to circular consumption: buy second-hand, rent clothing, or implement a 30-day cooling-off period before purchasing new items.",
+            "reduction": 840,
+            "difficulty": "Medium"
+          },
+          "goal90": {
+            "action": "Adopt a Plant-Based Diet",
+            "benefit": "Transition your diet away from high-emission animal products to vegetarian or vegan meals. This is the single most powerful dietary improvement you can make.",
+            "reduction": 2040,
+            "difficulty": "Hard"
+          }
+        },
+        "coachSummary": "Your diet is currently your leading source of emissions, accounting for 31% of your carbon footprint. Shifting from heavy meat meals to plant-based days will make a major, immediate dent in your output."
+      },
+      "challenges": [
+        {
+          "id": "no_car_friday",
+          "name": "No-Car Friday",
+          "points": 50,
+          "completed": true,
+          "streak": 1
+        },
+        {
+          "id": "plant_based_monday",
+          "name": "Plant-Based Monday",
+          "points": 40,
+          "completed": true,
+          "streak": 1
+        },
+        {
+          "id": "reusable_bottle",
+          "name": "Reusable Bottle Week",
+          "points": 20,
+          "completed": true,
+          "streak": 1
+        }
+      ],
+      "points": 110,
+      "streak": 1,
+      "chatHistory": [
+        {
+          "role": "user",
+          "text": "Tell me about plant-based diet benefits",
+          "timestamp": "2026-06-17T08:49:09.492Z"
+        },
+        {
+          "role": "coach",
+          "text": "Your diet is currently set as **heavy meat**, which contributes **250 kg CO₂** per month (**31%** of your total emissions).\n\nAnimal-based agriculture is resource-intensive. Switching to a plant-based or vegetarian diet can save up to **840 kg CO₂ annually**! You don't have to change overnight: starting with our **Plant-Based Monday** challenge is a simple, low-pressure way to make a measurable difference.",
+          "timestamp": "2026-06-17T08:49:09.492Z"
+        },
+        {
+          "role": "user",
+          "text": "Show me my footprint scorecard",
+          "timestamp": "2026-06-17T08:49:13.537Z"
+        },
+        {
+          "role": "coach",
+          "text": "I see you currently travel **40 km daily** using a **gasoline car**. This transportation habit produces **216 kg CO₂** per month, representing **26%** of your total footprint. \n\nSince transportation is a significant factor in your lifestyle, I recommend taking action: **Use Public Transit or Carpool**. By doing this, you could reduce your annual emissions by approximately **806 kg CO₂**! Shifting just 2 days of weekly travel to active transit (walking or cycling) or public transport is an excellent next step. You could also try joining our **No-Car Friday** challenge to build the habit.",
+          "timestamp": "2026-06-17T08:49:13.537Z"
+        },
+        {
+          "role": "user",
+          "text": "How can I reduce my transportation emissions?",
+          "timestamp": "2026-06-17T08:49:15.950Z"
+        },
+        {
+          "role": "coach",
+          "text": "I see you currently travel **40 km daily** using a **gasoline car**. This transportation habit produces **216 kg CO₂** per month, representing **26%** of your total footprint. \n\nSince transportation is a significant factor in your lifestyle, I recommend taking action: **Use Public Transit or Carpool**. By doing this, you could reduce your annual emissions by approximately **806 kg CO₂**! Shifting just 2 days of weekly travel to active transit (walking or cycling) or public transport is an excellent next step. You could also try joining our **No-Car Friday** challenge to build the habit.",
+          "timestamp": "2026-06-17T08:49:15.950Z"
+        }
+      ]
+    }
+  }
+}

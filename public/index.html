@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarbonLens — See Your Impact. Shape a Greener Future.</title>
+  <meta name="description" content="AI-powered sustainability decision coach helping you assess, track, and reduce your carbon footprint through personalized insights and challenges.">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              bg: '#0B0F19',
+              emerald: '#10B981',
+              mint: '#34D399'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="h-full bg-brand-bg text-gray-100 flex flex-col antialiased">
+
+  <!-- A11y Skip Link -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:bg-emerald-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:z-50">
+    Skip to main content
+  </a>
+
+  <!-- Global Header -->
+  <header class="border-b border-white/5 py-4 px-6 glass-panel rounded-none" role="banner">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-600/20 p-2 rounded-lg border border-emerald-500/30" aria-hidden="true">
+          <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white font-display">CarbonLens</h1>
+          <p class="text-xs text-gray-400">See Your Impact. Shape a Greener Future.</p>
+        </div>
+      </div>
+
+      <!-- Authentication / User Portal -->
+      <div class="flex items-center gap-3" id="auth-panel">
+        <label for="username-select" class="sr-only">Active User</label>
+        <div class="flex items-center gap-2 glass-panel px-3 py-1.5 border-white/10">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+          <span class="text-xs text-gray-300 font-medium">User:</span>
+          <select id="username-select" class="bg-transparent text-sm font-semibold text-white focus:outline-none cursor-pointer">
+            <option value="demo_user" class="bg-slate-900 text-white">demo_user</option>
+            <option value="new_user" class="bg-slate-900 text-white">+ Create New Profile</option>
+          </select>
+        </div>
+
+        <div class="hidden md:flex items-center gap-4 text-xs text-gray-400">
+          <div class="flex items-center gap-1">
+            <span class="font-semibold text-emerald-400" id="header-points">0</span>
+            <span>pts</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="font-semibold text-amber-400" id="header-streak">0</span>
+            <span>🔥 streak</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Login/User creation Modal (Keyboard accessible) -->
+  <div id="login-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="glass-panel-elevated p-8 max-w-md w-full mx-4 border-emerald-500/20">
+      <h2 id="modal-title" class="text-xl font-bold text-white mb-2">Create CarbonLens Profile</h2>
+      <p class="text-sm text-gray-400 mb-6">Enter a unique username to store assessments, streaks, challenges, and chat logs.</p>
+      
+      <form id="login-form">
+        <div class="mb-4">
+          <label for="username-input" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Username</label>
+          <input type="text" id="username-input" class="input-custom" placeholder="e.g. eco_warrior" required maxlength="30">
+          <span id="username-error" class="text-xs text-red-400 mt-1 block h-4" aria-live="polite"></span>
+        </div>
+        <div class="flex justify-end gap-3 mt-6">
+          <button type="button" id="login-cancel-btn" class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-md transition-all shadow-md">
+            Create Profile
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex flex-col md:flex-row max-w-7xl w-full mx-auto p-4 md:p-6 gap-6 overflow-hidden">
+    
+    <!-- Primary Sidebar Navigation (Tab bar) -->
+    <nav class="md:w-64 flex-shrink-0 flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0" role="navigation" aria-label="Main Navigation">
+      <button class="nav-link active flex items-center gap-3 px-4 py-3 border border-transparent rounded-lg text-sm font-semibold text-gray-400 hover:text-white" id="tab-dashboard" aria-selected="true">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"></path></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-link flex items-center gap-3 px-4 py-3 border border-transparent rounded-lg text-sm font-semibold text-gray-400 hover:text-white" id="tab-assessment" aria-selected="false">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+        <span>Assessment</span>
+      </button>
+      <button class="nav-link flex items-center gap-3 px-4 py-3 border border-transparent rounded-lg text-sm font-semibold text-gray-400 hover:text-white" id="tab-simulator" aria-selected="false">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+        <span>Impact Simulator</span>
+      </button>
+      <button class="nav-link flex items-center gap-3 px-4 py-3 border border-transparent rounded-lg text-sm font-semibold text-gray-400 hover:text-white" id="tab-challenges" aria-selected="false">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        <span>Challenges</span>
+      </button>
+      <button class="nav-link flex items-center gap-3 px-4 py-3 border border-transparent rounded-lg text-sm font-semibold text-gray-400 hover:text-white" id="tab-coach" aria-selected="false">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+        <span>Decision Coach</span>
+      </button>
+    </nav>
+
+    <!-- Main Content Work Area -->
+    <main id="main-content" class="flex-1 overflow-y-auto" role="main">
+
+      <!-- ================== VIEW 1: DASHBOARD ================== -->
+      <section id="view-dashboard" class="space-y-6">
+        
+        <!-- Welcome Alert if no assessment done yet -->
+        <div id="no-data-alert" class="glass-panel p-6 border-amber-500/20 flex flex-col md:flex-row items-center gap-4 justify-between">
+          <div class="flex items-center gap-4">
+            <div class="p-3 bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">No Carbon Assessment Data</h3>
+              <p class="text-sm text-gray-400">Complete the initial assessment to calculate your score, unlock recommendations, and build a custom roadmap.</p>
+            </div>
+          </div>
+          <button id="go-to-assessment-btn" class="mt-4 md:mt-0 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-md transition-all shadow-md shadow-emerald-500/10">
+            Start Assessment
+          </button>
+        </div>
+
+        <div id="dashboard-results-grid" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Column 1: Scorecard -->
+          <div class="glass-panel p-6 flex flex-col items-center justify-between border-white/5 relative overflow-hidden">
+            <h2 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-4 self-start">Footprint Scorecard</h2>
+            
+            <div class="flex flex-col items-center justify-center my-4 space-y-4">
+              <!-- Custom SVG Progress Circle -->
+              <div class="score-circle-container">
+                <svg class="score-circle-svg w-full h-full" viewBox="0 0 160 160">
+                  <circle class="score-circle-bg" cx="80" cy="80" r="70"></circle>
+                  <circle id="score-circle-fill" class="score-circle-fill" cx="80" cy="80" r="70" stroke="url(#emeraldGrad)"></circle>
+                  <defs>
+                    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#10B981" />
+                      <stop offset="100%" stop-color="#34D399" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span id="score-display" class="text-4xl font-extrabold text-white font-display">--</span>
+                  <span class="text-[10px] text-gray-500 uppercase tracking-widest font-semibold">Carbon Score</span>
+                </div>
+              </div>
+
+              <div class="text-center">
+                <span id="rating-badge" class="inline-block px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider">--</span>
+              </div>
+            </div>
+
+            <div class="w-full border-t border-white/5 pt-4 mt-4 flex items-center justify-between text-center">
+              <div>
+                <span class="block text-xl font-bold text-white font-display" id="monthly-co2-display">--</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">kg CO₂ / month</span>
+              </div>
+              <div class="h-8 w-px bg-white/5"></div>
+              <div>
+                <span class="block text-xl font-bold text-white font-display" id="annual-co2-display">--</span>
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider">Tons CO₂ / year</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Emission Breakdown -->
+          <div class="glass-panel p-6 border-white/5 flex flex-col justify-between">
+            <div>
+              <h2 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-6">Emission Breakdown</h2>
+              
+              <!-- Custom CSS percentage bars -->
+              <div class="space-y-4" id="breakdown-list-container">
+                <!-- Template Rows -->
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-gray-300">Transportation</span>
+                    <span class="font-bold text-white" id="pct-transport">0%</span>
+                  </div>
+                  <div class="progress-track"><div id="bar-transport" class="progress-fill" style="width: 0%; background-color: var(--color-transport);"></div></div>
+                </div>
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-gray-300">Food & Diet</span>
+                    <span class="font-bold text-white" id="pct-food">0%</span>
+                  </div>
+                  <div class="progress-track"><div id="bar-food" class="progress-fill" style="width: 0%; background-color: var(--color-food);"></div></div>
+                </div>
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-gray-300">Home Energy</span>
+                    <span class="font-bold text-white" id="pct-energy">0%</span>
+                  </div>
+                  <div class="progress-track"><div id="bar-energy" class="progress-fill" style="width: 0%; background-color: var(--color-energy);"></div></div>
+                </div>
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-gray-300">Shopping</span>
+                    <span class="font-bold text-white" id="pct-shopping">0%</span>
+                  </div>
+                  <div class="progress-track"><div id="bar-shopping" class="progress-fill" style="width: 0%; background-color: var(--color-shopping);"></div></div>
+                </div>
+                <div class="space-y-1.5">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-medium text-gray-300">Waste & Recycling</span>
+                    <span class="font-bold text-white" id="pct-waste">0%</span>
+                  </div>
+                  <div class="progress-track"><div id="bar-waste" class="progress-fill" style="width: 0%; background-color: var(--color-waste);"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contributors highlight -->
+            <div class="grid grid-cols-2 gap-2 mt-6 pt-4 border-t border-white/5 text-center text-xs">
+              <div class="p-2 bg-red-500/5 rounded-lg border border-red-500/10">
+                <span class="block text-[10px] text-gray-500 uppercase font-semibold">Highest Source</span>
+                <span id="highest-contrib-display" class="font-semibold text-red-400">--</span>
+              </div>
+              <div class="p-2 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
+                <span class="block text-[10px] text-gray-500 uppercase font-semibold">Lowest Source</span>
+                <span id="lowest-contrib-display" class="font-semibold text-emerald-400">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Top 3 Actions -->
+          <div class="glass-panel p-6 border-white/5 flex flex-col justify-between">
+            <div>
+              <h2 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-4">Top 3 Actions for Maximum Impact</h2>
+              <div class="space-y-3" id="top-actions-container">
+                <!-- Dynamic cards populated here -->
+                <div class="text-center text-xs text-gray-500 py-6">Calculating recommendations...</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Full Width: Personal Carbon Roadmap -->
+        <div id="dashboard-roadmap-panel" class="hidden glass-panel p-6 border-white/5 space-y-6">
+          <div>
+            <h2 class="text-lg font-bold text-white mb-1">Personal Carbon Roadmap</h2>
+            <p class="text-xs text-gray-400">A progressive, personalized roadmap designed to systematically lower your carbon emissions over 90 days.</p>
+          </div>
+
+          <!-- Timeline Roadmap cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            
+            <!-- 30-Day Card -->
+            <div class="glass-panel-elevated p-5 border-white/10 flex flex-col justify-between h-full relative">
+              <div class="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-emerald-600 border-2 border-brand-bg flex items-center justify-center font-bold text-xs text-white">30</div>
+              <div class="mt-2 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-emerald-400">Stage 1: Quick Wins</span>
+                  <span class="px-2 py-0.5 text-[9px] font-bold rounded bg-emerald-500/10 text-emerald-400 uppercase tracking-wider" id="roadmap-difficulty-30">Easy</span>
+                </div>
+                <h3 class="font-bold text-white text-sm" id="roadmap-action-30">Loading...</h3>
+                <p class="text-xs text-gray-400" id="roadmap-benefit-30">Analyzing your footprint details...</p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                <span>Annual reduction</span>
+                <span class="font-bold text-white"><span id="roadmap-reduction-30">--</span> kg CO₂</span>
+              </div>
+            </div>
+
+            <!-- 60-Day Card -->
+            <div class="glass-panel-elevated p-5 border-white/10 flex flex-col justify-between h-full relative">
+              <div class="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-indigo-600 border-2 border-brand-bg flex items-center justify-center font-bold text-xs text-white">60</div>
+              <div class="mt-2 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-indigo-400">Stage 2: Habits Shift</span>
+                  <span class="px-2 py-0.5 text-[9px] font-bold rounded bg-indigo-500/10 text-indigo-400 uppercase tracking-wider" id="roadmap-difficulty-60">Medium</span>
+                </div>
+                <h3 class="font-bold text-white text-sm" id="roadmap-action-60">Loading...</h3>
+                <p class="text-xs text-gray-400" id="roadmap-benefit-60">Analyzing your footprint details...</p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                <span>Annual reduction</span>
+                <span class="font-bold text-white"><span id="roadmap-reduction-60">--</span> kg CO₂</span>
+              </div>
+            </div>
+
+            <!-- 90-Day Card -->
+            <div class="glass-panel-elevated p-5 border-white/10 flex flex-col justify-between h-full relative">
+              <div class="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-violet-600 border-2 border-brand-bg flex items-center justify-center font-bold text-xs text-white">90</div>
+              <div class="mt-2 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-violet-400">Stage 3: Deep Impact</span>
+                  <span class="px-2 py-0.5 text-[9px] font-bold rounded bg-violet-500/10 text-violet-400 uppercase tracking-wider" id="roadmap-difficulty-90">Hard</span>
+                </div>
+                <h3 class="font-bold text-white text-sm" id="roadmap-action-90">Loading...</h3>
+                <p class="text-xs text-gray-400" id="roadmap-benefit-90">Analyzing your footprint details...</p>
+              </div>
+              <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                <span>Annual reduction</span>
+                <span class="font-bold text-white"><span id="roadmap-reduction-90">--</span> kg CO₂</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================== VIEW 2: ASSESSMENT FORM ================== -->
+      <section id="view-assessment" class="hidden space-y-6">
+        <div class="glass-panel p-6 border-white/5">
+          <div class="mb-6">
+            <h2 class="text-xl font-bold text-white mb-1">Carbon Assessment</h2>
+            <p class="text-sm text-gray-400">Provide details about your daily travel, nutrition, household, and recycling habits. We will protect and safely calculate your impact footprint.</p>
+          </div>
+
+          <form id="assessment-form" class="space-y-6">
+            
+            <!-- Category 1: Transportation -->
+            <div class="p-5 bg-slate-900/40 rounded-xl border border-white/5 space-y-4">
+              <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                <div class="text-sky-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </div>
+                <h3 class="font-bold text-white text-sm">1. Transportation habits</h3>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="input-distance" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Daily Travel Distance (km)</label>
+                  <input type="number" id="input-distance" name="transportDistance" class="input-custom" min="0" max="1000" step="1" value="20" required>
+                  <p class="text-[10px] text-gray-500 mt-1">Average kilometers driven or commuted per day.</p>
+                </div>
+                <div>
+                  <label for="input-transport-type" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Primary Transport Type</label>
+                  <select id="input-transport-type" name="transportType" class="input-custom">
+                    <option value="gasoline_car">Gasoline Car (Standard)</option>
+                    <option value="diesel_car">Diesel Car</option>
+                    <option value="electric_car">Electric Car</option>
+                    <option value="public_transport">Public Transport (Bus/Train)</option>
+                    <option value="bicycle_walking">Bicycle / Walking (Zero Emission)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Category 2: Nutrition / Diet -->
+            <div class="p-5 bg-slate-900/40 rounded-xl border border-white/5 space-y-4">
+              <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                <div class="text-amber-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707"></path></svg>
+                </div>
+                <h3 class="font-bold text-white text-sm">2. Nutritional Habits</h3>
+              </div>
+
+              <div>
+                <span class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">Primary Diet Type</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  
+                  <label class="relative flex flex-col p-4 bg-black/20 hover:bg-black/40 border border-white/10 rounded-lg cursor-pointer focus-within:ring-2 focus-within:ring-emerald-500 transition-all select-none">
+                    <input type="radio" name="dietType" value="vegetarian" class="sr-only">
+                    <span class="font-bold text-white text-sm">Vegetarian</span>
+                    <span class="text-xs text-gray-500 mt-1">No meat, includes eggs & dairy. Low footprint footprint.</span>
+                  </label>
+                  
+                  <label class="relative flex flex-col p-4 bg-black/20 hover:bg-black/40 border border-white/10 rounded-lg cursor-pointer focus-within:ring-2 focus-within:ring-emerald-500 transition-all select-none">
+                    <input type="radio" name="dietType" value="mixed" class="sr-only" checked>
+                    <span class="font-bold text-white text-sm">Mixed Diet</span>
+                    <span class="text-xs text-gray-500 mt-1">Balanced amounts of meat, poultry, seafood, and vegetables.</span>
+                  </label>
+
+                  <label class="relative flex flex-col p-4 bg-black/20 hover:bg-black/40 border border-white/10 rounded-lg cursor-pointer focus-within:ring-2 focus-within:ring-emerald-500 transition-all select-none">
+                    <input type="radio" name="dietType" value="heavy_meat" class="sr-only">
+                    <span class="font-bold text-white text-sm">Heavy Meat Consumption</span>
+                    <span class="text-xs text-gray-500 mt-1">High consumption of red meats, beef, or pork on most days.</span>
+                  </label>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Category 3: Home Energy -->
+            <div class="p-5 bg-slate-900/40 rounded-xl border border-white/5 space-y-4">
+              <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                <div class="text-emerald-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h3 class="font-bold text-white text-sm">3. Home Energy Usage</h3>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="input-electricity" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Monthly Electricity (kWh)</label>
+                  <input type="number" id="input-electricity" name="electricity" class="input-custom" min="0" max="10000" step="10" value="250" required>
+                  <p class="text-[10px] text-gray-500 mt-1">Monthly grid electricity usage shown on utility bills.</p>
+                </div>
+                <div>
+                  <label for="input-ac" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Daily Air Conditioning Runtime (hours)</label>
+                  <input type="number" id="input-ac" name="acHours" class="input-custom" min="0" max="24" step="0.5" value="4" required>
+                  <p class="text-[10px] text-gray-500 mt-1">Average daily hours the AC cooling is active.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Category 4: Shopping & Waste -->
+            <div class="p-5 bg-slate-900/40 rounded-xl border border-white/5 space-y-4">
+              <div class="flex items-center gap-3 border-b border-white/5 pb-3">
+                <div class="text-violet-400">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                </div>
+                <h3 class="font-bold text-white text-sm">4. Consumption & Waste Habits</h3>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="input-shopping" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Shopping Habits (New Goods)</label>
+                  <select id="input-shopping" name="shopping" class="input-custom">
+                    <option value="infrequent">Infrequent (Buy only essentials, second-hand first)</option>
+                    <option value="moderate" selected>Moderate (Buy seasonal clothes, electronics as needed)</option>
+                    <option value="frequent">Frequent (Regular new clothes, fast fashion, tech upgrades)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="input-recycling" class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Recycling & Waste Habits</label>
+                  <select id="input-recycling" name="recycling" class="input-custom">
+                    <option value="always">Always (Strict sorting of plastics/glass/metals, composting)</option>
+                    <option value="sometimes" selected>Sometimes (Recycle paper/cartons, standard garbage)</option>
+                    <option value="never">Never (All waste goes to standard trash bin)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-white/5">
+              <span id="assessment-msg" class="text-xs self-center" aria-live="polite"></span>
+              <button type="submit" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-lg transition-all shadow-md shadow-emerald-500/10">
+                Submit Assessment
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </section>
+
+      <!-- ================== VIEW 3: SIMULATOR ================== -->
+      <section id="view-simulator" class="hidden space-y-6">
+        <div class="glass-panel p-6 border-white/5">
+          <div class="mb-6">
+            <h2 class="text-xl font-bold text-white mb-1">Impact Simulator</h2>
+            <p class="text-sm text-gray-400">Model lifestyle shifts (e.g., commute reductions, vegetarian shifts, AC throttling) and see your forecasted footprint reduction.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Sliders Panel -->
+            <div class="lg:col-span-1 glass-panel-elevated p-5 border-white/10 space-y-6">
+              <h3 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-4 border-b border-white/5 pb-2">Modify Habits</h3>
+              
+              <!-- Slider 1: Transport Reduction -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <label for="sim-transport-range" class="font-medium text-gray-300">Reduce Driving / Travel</label>
+                  <span class="font-bold text-emerald-400" id="sim-transport-value">0%</span>
+                </div>
+                <input type="range" id="sim-transport-range" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500" min="0" max="100" value="0">
+                <span class="block text-[10px] text-gray-500">Simulate switching trips to public transport, walking, or cycling.</span>
+              </div>
+
+              <!-- Slider 2: AC Reduction -->
+              <div class="space-y-2">
+                <div class="flex justify-between text-xs">
+                  <label for="sim-ac-range" class="font-medium text-gray-300">Throttling Air Conditioning</label>
+                  <span class="font-bold text-emerald-400" id="sim-ac-value">0 hrs/day</span>
+                </div>
+                <input type="range" id="sim-ac-range" class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500" min="0" max="24" step="0.5" value="0">
+                <span class="block text-[10px] text-gray-500">Reduce daily active cooling running hours.</span>
+              </div>
+
+              <!-- Option 3: Diet simulated option -->
+              <div class="space-y-2">
+                <label for="sim-diet" class="block text-xs font-medium text-gray-300">Simulated Diet</label>
+                <select id="sim-diet" class="bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs text-white w-full focus:outline-none focus:border-emerald-500">
+                  <option value="vegetarian">Vegetarian</option>
+                  <option value="mixed">Mixed Diet</option>
+                  <option value="heavy_meat">Heavy Meat Consumption</option>
+                </select>
+                <span class="block text-[10px] text-gray-500">Switch diet to assess agricultural carbon savings.</span>
+              </div>
+
+              <div class="pt-4 border-t border-white/5">
+                <button id="reset-sim-btn" class="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-xs font-semibold text-gray-300 transition-all">
+                  Reset Habit Sliders
+                </button>
+              </div>
+            </div>
+
+            <!-- Visualization / Output Panel -->
+            <div class="lg:col-span-2 glass-panel-elevated p-6 border-white/10 flex flex-col justify-between">
+              
+              <div>
+                <h3 class="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-6 border-b border-white/5 pb-2">Emissions Forecast Comparison</h3>
+                
+                <!-- Custom comparative chart -->
+                <div class="bar-chart-container py-6">
+                  <div class="sim-bar-row">
+                    <span class="sim-bar-label">Current:</span>
+                    <div class="sim-bar-track">
+                      <div id="bar-current-fill" class="sim-bar-fill bg-indigo-500/60" style="width: 100%;">
+                        <span id="label-current-bar">-- kg</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="sim-bar-row">
+                    <span class="sim-bar-label">Simulated:</span>
+                    <div class="sim-bar-track">
+                      <div id="bar-predicted-fill" class="sim-bar-fill bg-emerald-500" style="width: 100%;">
+                        <span id="label-predicted-bar">-- kg</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Numerical savings highlights -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/10 text-center">
+                <div class="p-4 bg-brand-bg rounded-xl border border-white/5">
+                  <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">Forecasted Reduction</span>
+                  <span id="sim-saving-amount" class="block text-3xl font-extrabold text-emerald-400 font-display">--</span>
+                  <span class="text-[10px] text-gray-400 uppercase">kg CO₂ saved monthly</span>
+                </div>
+                <div class="p-4 bg-brand-bg rounded-xl border border-white/5">
+                  <span class="block text-xs text-gray-500 uppercase tracking-wider font-semibold">Percentage Reduction</span>
+                  <span id="sim-saving-pct" class="block text-3xl font-extrabold text-emerald-400 font-display">--</span>
+                  <span class="text-[10px] text-gray-400 uppercase">of current emissions saved</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== VIEW 4: CHALLENGES ================== -->
+      <section id="view-challenges" class="hidden space-y-6">
+        <div class="glass-panel p-6 border-white/5">
+          <div class="mb-6 flex justify-between items-center">
+            <div>
+              <h2 class="text-xl font-bold text-white mb-1">Eco-Habit Challenges</h2>
+              <p class="text-sm text-gray-400">Complete challenges to practice carbon reduction and earn points to grow your active streak.</p>
+            </div>
+            
+            <div class="flex items-center gap-4 text-sm glass-panel px-4 py-2 border-white/10 bg-slate-900/40">
+              <div class="text-center">
+                <span class="block text-lg font-bold text-emerald-400" id="challenges-score">0</span>
+                <span class="text-[9px] text-gray-500 uppercase font-semibold">Total Points</span>
+              </div>
+              <div class="h-6 w-px bg-white/10"></div>
+              <div class="text-center">
+                <span class="block text-lg font-bold text-amber-400" id="challenges-streak">0</span>
+                <span class="text-[9px] text-gray-500 uppercase font-semibold">Active Streak</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="challenges-grid">
+            <!-- Dynamic checklist populated here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================== VIEW 5: COACH CHAT ================== -->
+      <section id="view-coach" class="hidden h-full flex flex-col glass-panel border-white/5 overflow-hidden">
+        
+        <!-- Coach introduction bar -->
+        <div class="p-4 border-b border-white/5 bg-slate-900/50 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-600/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400" aria-hidden="true">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l.707-.707m2.828 9.9a5 5 0 113.536 0V21h-2v-2a2 2 0 00-2-2H9a2 2 0 00-2 2v2H5V16.343z"></path></svg>
+            </div>
+            <div>
+              <h2 class="font-bold text-white text-sm">CarbonLens Decision Coach</h2>
+              <span class="text-[10px] text-emerald-400 flex items-center gap-1.5 font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Sustainability Advisor
+              </span>
+            </div>
+          </div>
+          <button id="clear-chat-btn" class="px-2.5 py-1.5 rounded bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] text-gray-400 hover:text-white transition-all font-semibold">
+            Clear Session
+          </button>
+        </div>
+
+        <!-- Chat messages terminal -->
+        <div class="flex-1 p-6 overflow-y-auto space-y-4 chat-messages-container" id="chat-messages" role="log" aria-label="Chat Log" aria-live="polite">
+          <!-- Initial coach prompt -->
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-600/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs mt-1" aria-hidden="true">C</div>
+            <div class="chat-bubble-coach rounded-xl p-4 text-xs max-w-[80%] leading-relaxed">
+              Hello! I am your CarbonLens Climate Consultant. Complete your Assessment form so I can evaluate your profile and advise you. Otherwise, ask me anything about reducing transportation emissions, switching energy habits, recycling, or shopping!
+            </div>
+          </div>
+        </div>
+
+        <!-- Typing animation prompt -->
+        <div id="coach-typing" class="hidden px-6 py-2 flex items-center gap-2 text-xs text-gray-500">
+          <div class="flex gap-1 items-center">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+          <span>Coach is analyzing...</span>
+        </div>
+
+        <!-- Quick Consult options helper buttons -->
+        <div class="px-6 py-2.5 border-t border-white/5 bg-slate-900/20 overflow-x-auto flex gap-2" id="quick-questions-container">
+          <button class="quick-question-btn text-[10px] font-medium bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-gray-300 hover:text-emerald-400 px-3 py-1.5 rounded-full transition-all whitespace-nowrap">
+            How can I reduce my transportation emissions?
+          </button>
+          <button class="quick-question-btn text-[10px] font-medium bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-gray-300 hover:text-emerald-400 px-3 py-1.5 rounded-full transition-all whitespace-nowrap">
+            Tell me about plant-based diet benefits
+          </button>
+          <button class="quick-question-btn text-[10px] font-medium bg-white/5 hover:bg-emerald-500/10 border border-white/10 hover:border-emerald-500/30 text-gray-300 hover:text-emerald-400 px-3 py-1.5 rounded-full transition-all whitespace-nowrap">
+            Show me my footprint scorecard
+          </button>
+        </div>
+
+        <!-- Message input form bar -->
+        <form id="chat-form" class="p-4 border-t border-white/5 bg-slate-900/50 flex gap-3">
+          <label for="chat-input" class="sr-only">Message to Climate Coach</label>
+          <input type="text" id="chat-input" class="input-custom flex-1" placeholder="Ask the Consultant coach a question..." autocomplete="off" required>
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all shadow-md active:scale-95 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            <span class="sr-only">Send message</span>
+          </button>
+        </form>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-white/5 py-4 px-6 text-center text-xs text-gray-500" role="contentinfo">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>&copy; 2026 CarbonLens. See Your Impact. Shape a Greener Future.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-emerald-400 transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-emerald-400 transition-colors">Accessibility Statement</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic Modules -->
+  <script src="js/calculator.js"></script>
+  <script src="js/insights.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/coach.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
