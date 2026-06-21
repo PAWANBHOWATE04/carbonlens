@@ -1,6 +1,7 @@
 /**
  * Carbon Controller
- * Handles incoming requests, orchestrates validation, and coordinates service executions.
+ * Handles incoming HTTP requests, orchestrates schema validation, 
+ * coordinates database accesses, and invokes services.
  * Completely asynchronous and modular.
  */
 
@@ -12,6 +13,9 @@ const validation = require('../utils/validation');
 
 /**
  * Login or register a user by username.
+ * @param {Object} req Express request object containing body.username
+ * @param {Object} res Express response object
+ * @returns {Promise<Object>} Express response JSON containing active user profile
  */
 exports.login = async (req, res) => {
   try {
@@ -39,6 +43,9 @@ exports.login = async (req, res) => {
 
 /**
  * Submit carbon footprint assessment and update insights.
+ * @param {Object} req Express request containing body assessment inputs
+ * @param {Object} res Express response object
+ * @returns {Promise<Object>} Express response JSON containing computed assessment results
  */
 exports.submitAssessment = async (req, res) => {
   try {
@@ -82,6 +89,9 @@ exports.submitAssessment = async (req, res) => {
 
 /**
  * Toggle sustainability challenge completion and recalculate user points and streak.
+ * @param {Object} req Express request containing body.challengeId and body.completed
+ * @param {Object} res Express response object
+ * @returns {Promise<Object>} Express response JSON containing updated profile
  */
 exports.toggleChallenge = async (req, res) => {
   try {
@@ -129,6 +139,9 @@ exports.toggleChallenge = async (req, res) => {
 
 /**
  * Handle live impact simulations without modifying the persistent database record.
+ * @param {Object} req Express request containing body simulation reductions
+ * @param {Object} res Express response object
+ * @returns {Promise<Object>} Express response JSON comparing current and simulated output
  */
 exports.simulateFootprint = async (req, res) => {
   try {
@@ -193,6 +206,9 @@ exports.simulateFootprint = async (req, res) => {
 
 /**
  * Post a chat message to the Decision Coach and get a tailored response.
+ * @param {Object} req Express request containing body.message
+ * @param {Object} res Express response object
+ * @returns {Promise<Object>} Express response JSON with the coach's reply and complete history
  */
 exports.postCoachMessage = async (req, res) => {
   try {

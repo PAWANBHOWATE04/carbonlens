@@ -6,6 +6,10 @@
 
 const { EMISSION_FACTORS } = require('./calculatorService');
 
+// Global Constants
+const MONTHS_IN_YEAR = 12;
+const AC_REDUCTION_HOURS = 2;
+
 /**
  * Generates a tailored response from the AI Decision Coach.
  * 
@@ -23,7 +27,7 @@ function getCoachResponse(message, userProfile) {
 To help you effectively, I need to understand your current habits. Please navigate to the **Carbon Assessment** tab and complete the quick form. Once you submit, I'll be able to analyze your footprint, identify your highest emission categories, and give you a personalized roadmap!`;
   }
 
-  const { assessment, results, insights, points, streak } = userProfile;
+  const { assessment, results, insights } = userProfile;
   const { totalMonthlyCO2, carbonScore, rating, percentages, breakdown } = results;
   const { highestContributor, lowestContributor, topActions } = insights;
 
@@ -61,7 +65,7 @@ Since transportation is a significant factor in your lifestyle, ${recText} Shift
       return `Outstanding! You have adopted a **vegetarian** diet, which keeps your food footprint at a low **${co2} kg CO₂** per month (**${pct}%** of your total). Plant-based eating has a massive reduction effect. If you want to challenge yourself further, try replacing dairy or shopping for locally sourced produce to minimize transport emissions related to food distribution.`;
     }
 
-    const savings = (EMISSION_FACTORS.food[assessment.dietType] - EMISSION_FACTORS.food.vegetarian) * 12;
+    const savings = (EMISSION_FACTORS.food[assessment.dietType] - EMISSION_FACTORS.food.vegetarian) * MONTHS_IN_YEAR;
 
     return `Your diet is currently set as **${diet}**, which contributes **${co2} kg CO₂** per month (**${pct}%** of your total emissions).
 
@@ -77,7 +81,7 @@ Animal-based agriculture is resource-intensive. Switching to a plant-based or ve
 
     let advice = '';
     if (ac > 0) {
-      advice += `Your daily AC usage of **${ac} hours** contributes significantly to this. Reducing AC usage by just 2 hours daily could cut your annual emissions by **${Math.round(Math.min(ac, 2) * EMISSION_FACTORS.acHour * 12)} kg CO₂**! `;
+      advice += `Your daily AC usage of **${ac} hours** contributes significantly to this. Reducing AC usage by just 2 hours daily could cut your annual emissions by **${Math.round(Math.min(ac, AC_REDUCTION_HOURS) * EMISSION_FACTORS.acHour * MONTHS_IN_YEAR)} kg CO₂**! `;
     }
     advice += `Additionally, turning off standby appliances and switching to LED lightbulbs can shave off 20% of your electricity consumption (${ele} kWh/month).`;
 
@@ -97,8 +101,8 @@ ${advice} Energy-saving settings on refrigerators and washing in cold water are 
     }
 
     const savings = shop === 'frequent'
-      ? (EMISSION_FACTORS.shopping.frequent - EMISSION_FACTORS.shopping.moderate) * 12
-      : (EMISSION_FACTORS.shopping.moderate - EMISSION_FACTORS.shopping.infrequent) * 12;
+      ? (EMISSION_FACTORS.shopping.frequent - EMISSION_FACTORS.shopping.moderate) * MONTHS_IN_YEAR
+      : (EMISSION_FACTORS.shopping.moderate - EMISSION_FACTORS.shopping.infrequent) * MONTHS_IN_YEAR;
 
     return `Your consumption habits are categorized as **${shop}**, which generates **${co2} kg CO₂** per month (**${pct}%** of your footprint). 
 
@@ -116,8 +120,8 @@ Manufacturing, packaging, and shipping new products represent a large amount of 
     }
 
     const savings = rec === 'never'
-      ? (EMISSION_FACTORS.waste.never - EMISSION_FACTORS.waste.always) * 12
-      : (EMISSION_FACTORS.waste.sometimes - EMISSION_FACTORS.waste.always) * 12;
+      ? (EMISSION_FACTORS.waste.never - EMISSION_FACTORS.waste.always) * MONTHS_IN_YEAR
+      : (EMISSION_FACTORS.waste.sometimes - EMISSION_FACTORS.waste.always) * MONTHS_IN_YEAR;
 
     return `Your recycling habit is **${rec}**, which contributes **${co2} kg CO₂** per month (**${pct}%** of your total footprint). 
 
@@ -139,6 +143,7 @@ Your top priority recommendation is to **${topActions[0].name}**, which will sav
 
   // Case 8: User asks about challenges / points / streak / progress
   if (text.includes('challenge') || text.includes('point') || text.includes('streak') || text.includes('scorecard') || text.includes('game')) {
+    const { points, streak } = userProfile;
     return `You currently have **${points} points** and an active streak of **${streak} days**. 
 
 Completing challenges is a fantastic way to turn carbon reduction into an engaging habit. We currently offer three main challenges:

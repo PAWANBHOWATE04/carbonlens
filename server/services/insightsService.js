@@ -6,11 +6,53 @@
 
 const { EMISSION_FACTORS } = require('./calculatorService');
 
+// Global Constants
+const DAYS_IN_MONTH = 30;
+const MONTHS_IN_YEAR = 12;
+const TOP_ACTIONS_LIMIT = 3;
+
+// Simulation / Calculation Ratios
+const TRANSPORT_REDUCTION_RATIO = 0.4; // Simulate replacing 3 days of travel per week (~40%)
+const ELECTRICITY_SAVINGS_RATIO = 0.20; // Upgrade standard savings estimation (20%)
+const AC_REDUCTION_LIMIT = 2; // Throttling AC runtime limit (2 hours)
+
+// Difficulty weights used for impact calculations
 const DIFFICULTY_WEIGHTS = {
   'Easy': 1.0,
   'Medium': 1.5,
   'Hard': 2.0
 };
+
+// Standard Fallback Actions
+const FALLBACK_ACTIONS = [
+  {
+    id: 'fallback_bottle',
+    name: 'Say No to Single-Use Plastics',
+    category: 'waste',
+    difficulty: 'Easy',
+    annualReduction: 50,
+    impactScore: 50.0,
+    description: 'Carry a reusable water bottle and cloth shopping bags to avoid purchasing single-use packaging.'
+  },
+  {
+    id: 'fallback_vampire_draw',
+    name: 'Eliminate Vampire Power Draw',
+    category: 'energy',
+    difficulty: 'Easy',
+    annualReduction: 75,
+    impactScore: 75.0,
+    description: 'Unplug chargers and electronics when not in use, as they consume small amounts of power continuously.'
+  },
+  {
+    id: 'fallback_transit_one_day',
+    name: 'No-Car Commute One Day a Week',
+    category: 'transportation',
+    difficulty: 'Medium',
+    annualReduction: 120,
+    impactScore: 80.0,
+    description: 'Switch your commute to public transit, biking, or walking just one day per week.'
+  }
+];
 
 /**
  * Identifies high/low emission categories, ranks actions, and creates a roadmap.
@@ -72,7 +114,7 @@ function generateInsights(inputs, results) {
     const publicTransportFactor = EMISSION_FACTORS.transport.public_transport;
     // Simulate replacing 3 days of car/transit travel per week (~40% reduction) with public transport/active transit
     const reductionFactor = currentFactor > publicTransportFactor ? (currentFactor - publicTransportFactor) : currentFactor;
-    const annualSaving = Math.round(transportDistance * 30 * reductionFactor * 0.4 * 12);
+    const annualSaving = Math.round(transportDistance * DAYS_IN_MONTH * reductionFactor * TRANSPORT_REDUCTION_RATIO * MONTHS_IN_YEAR);
     
     if (annualSaving > 10) {
       candidates.push({
@@ -94,7 +136,7 @@ function generateInsights(inputs, results) {
       ? EMISSION_FACTORS.food[dietType] 
       : EMISSION_FACTORS.food.mixed;
     const vegetarianEmissions = EMISSION_FACTORS.food.vegetarian;
-    const saving = (currentDietEmissions - vegetarianEmissions) * 12;
+    const saving = (currentDietEmissions - vegetarianEmissions) * MONTHS_IN_YEAR;
 
     candidates.push({
       id: 'diet_shift',
@@ -110,7 +152,7 @@ function generateInsights(inputs, results) {
   // Action 3: Optimize AC Use
   const acHours = parseFloat(inputs.acHours) || 0;
   if (acHours > 0) {
-    const saving = Math.round(Math.min(acHours, 2) * EMISSION_FACTORS.acHour * 12); // Reduce AC by up to 2 hours daily
+    const saving = Math.round(Math.min(acHours, AC_REDUCTION_LIMIT) * EMISSION_FACTORS.acHour * MONTHS_IN_YEAR); // Reduce AC by up to 2 hours daily
     candidates.push({
       id: 'ac_optimize',
       name: 'Optimize Air Conditioning',
@@ -125,7 +167,7 @@ function generateInsights(inputs, results) {
   // Action 4: Energy Efficiency
   const electricity = parseFloat(inputs.electricity) || 0;
   if (electricity > 0) {
-    const saving = Math.round(electricity * EMISSION_FACTORS.electricity * 0.20 * 12); // Save 20% of electricity
+    const saving = Math.round(electricity * EMISSION_FACTORS.electricity * ELECTRICITY_SAVINGS_RATIO * MONTHS_IN_YEAR); // Save 20% of electricity
     candidates.push({
       id: 'electricity_efficient',
       name: 'Upgrade to Energy-Efficient LEDs & Standby Management',
@@ -142,9 +184,9 @@ function generateInsights(inputs, results) {
   if (shopping !== 'infrequent') {
     let saving = 0;
     if (shopping === 'frequent') {
-      saving = (EMISSION_FACTORS.shopping.frequent - EMISSION_FACTORS.shopping.moderate) * 12;
+      saving = (EMISSION_FACTORS.shopping.frequent - EMISSION_FACTORS.shopping.moderate) * MONTHS_IN_YEAR;
     } else if (shopping === 'moderate') {
-      saving = (EMISSION_FACTORS.shopping.moderate - EMISSION_FACTORS.shopping.infrequent) * 12;
+      saving = (EMISSION_FACTORS.shopping.moderate - EMISSION_FACTORS.shopping.infrequent) * MONTHS_IN_YEAR;
     }
 
     candidates.push({
@@ -165,7 +207,7 @@ function generateInsights(inputs, results) {
       ? EMISSION_FACTORS.waste[recycling] 
       : EMISSION_FACTORS.waste.sometimes;
     const alwaysWasteEmissions = EMISSION_FACTORS.waste.always;
-    const saving = (currentWasteEmissions - alwaysWasteEmissions) * 12;
+    const saving = (currentWasteEmissions - alwaysWasteEmissions) * MONTHS_IN_YEAR;
 
     candidates.push({
       id: 'waste_recycle',
@@ -180,42 +222,12 @@ function generateInsights(inputs, results) {
 
   // 3. Sort Candidates by Impact Score Descending and pick Top 3
   candidates.sort((a, b) => b.impactScore - a.impactScore);
-  const topActions = candidates.slice(0, 3);
+  const topActions = candidates.slice(0, TOP_ACTIONS_LIMIT);
 
   // If there are fewer than 3 actions generated, add fallback standard ones
-  if (topActions.length < 3) {
-    const fallbacks = [
-      {
-        id: 'fallback_bottle',
-        name: 'Say No to Single-Use Plastics',
-        category: 'waste',
-        difficulty: 'Easy',
-        annualReduction: 50,
-        impactScore: 50.0,
-        description: 'Carry a reusable water bottle and cloth shopping bags to avoid purchasing single-use packaging.'
-      },
-      {
-        id: 'fallback_vampire_draw',
-        name: 'Eliminate Vampire Power Draw',
-        category: 'energy',
-        difficulty: 'Easy',
-        annualReduction: 75,
-        impactScore: 75.0,
-        description: 'Unplug chargers and electronics when not in use, as they consume small amounts of power continuously.'
-      },
-      {
-        id: 'fallback_transit_one_day',
-        name: 'No-Car Commute One Day a Week',
-        category: 'transportation',
-        difficulty: 'Medium',
-        annualReduction: 120,
-        impactScore: 80.0,
-        description: 'Switch your commute to public transit, biking, or walking just one day per week.'
-      }
-    ];
-
-    for (const fb of fallbacks) {
-      if (topActions.length >= 3) break;
+  if (topActions.length < TOP_ACTIONS_LIMIT) {
+    for (const fb of FALLBACK_ACTIONS) {
+      if (topActions.length >= TOP_ACTIONS_LIMIT) break;
       if (!topActions.some(a => a.id === fb.id || a.name === fb.name)) {
         topActions.push(fb);
       }
@@ -229,7 +241,12 @@ function generateInsights(inputs, results) {
   const mediumCandidates = candidates.filter(c => c.difficulty === 'Medium');
   const hardCandidates = candidates.filter(c => c.difficulty === 'Hard');
 
-  // Helper to get or fallback
+  /**
+   * Helper to retrieve best candidate for a given difficulty tier or return default fallback.
+   * @param {Array} tierCandidates 
+   * @param {Object} defaultGoal 
+   * @returns {Object} Target roadmap goal
+   */
   const getRoadmapGoal = (tierCandidates, defaultGoal) => {
     if (tierCandidates.length > 0) {
       const best = tierCandidates[0]; // Already sorted by impact score

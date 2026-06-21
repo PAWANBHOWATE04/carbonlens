@@ -1,8 +1,11 @@
 /**
  * Calculator Service
- * Handles carbon footprint calculation logic and categorization.
+ * Handles carbon footprint calculation logic, scoring, and rating categorization.
  */
 
+/**
+ * Coefficient factors used to translate user habits into monthly kg CO2 emissions.
+ */
 const EMISSION_FACTORS = {
   transport: {
     gasoline_car: 0.18,      // kg CO2 per km
@@ -30,6 +33,16 @@ const EMISSION_FACTORS = {
   acHour: 18                 // kg CO2 per hour of daily AC use per month (1.5 kW * 30 days * 0.4 kg/kWh)
 };
 
+// Global Calculation & Scoring Constants
+const DAYS_IN_MONTH = 30;
+const MAX_SCORE = 100;
+const SCORE_CONVERSION_FACTOR = 15;
+const PERCENTAGE_MULTIPLIER = 100;
+
+// Rating Thresholds
+const RATING_GREEN_THRESHOLD = 75;
+const RATING_IMPROVING_THRESHOLD = 45;
+
 /**
  * Calculates monthly carbon footprint based on assessment inputs.
  * 
@@ -42,7 +55,7 @@ const EMISSION_FACTORS = {
  * @param {string} inputs.shopping Shopping consumption habits
  * @param {string} inputs.recycling Recycling habits
  * 
- * @returns {Object} Calculated emission results
+ * @returns {Object} Calculated emission results, percentages, score, and rating
  */
 function calculateCarbonFootprint(inputs) {
   // 1. Fallback & validation defaults
@@ -59,7 +72,7 @@ function calculateCarbonFootprint(inputs) {
     ? EMISSION_FACTORS.transport[transportType] 
     : EMISSION_FACTORS.transport.gasoline_car;
   
-  const transportEmissions = Math.round(transportDistance * 30 * transportFactor);
+  const transportEmissions = Math.round(transportDistance * DAYS_IN_MONTH * transportFactor);
 
   const foodEmissions = EMISSION_FACTORS.food[dietType] !== undefined 
     ? EMISSION_FACTORS.food[dietType] 
@@ -81,15 +94,14 @@ function calculateCarbonFootprint(inputs) {
   const totalMonthlyCO2 = transportEmissions + foodEmissions + energyEmissions + shoppingEmissions + wasteEmissions;
 
   // 4. Carbon Score calculation (0 - 100 scale, higher is cleaner/better)
-  // Standard average footprint is around 700-1000 kg/month. 
   // A score of 100 corresponds to 0 emissions. Every 15 kg of CO2 reduces score by 1.
-  const carbonScore = Math.max(0, 100 - Math.round(totalMonthlyCO2 / 15));
+  const carbonScore = Math.max(0, MAX_SCORE - Math.round(totalMonthlyCO2 / SCORE_CONVERSION_FACTOR));
 
   // 5. Sustainability Rating categorization
   let rating = 'High Impact';
-  if (carbonScore >= 75) {
+  if (carbonScore >= RATING_GREEN_THRESHOLD) {
     rating = 'Green';
-  } else if (carbonScore >= 45) {
+  } else if (carbonScore >= RATING_IMPROVING_THRESHOLD) {
     rating = 'Improving';
   }
 
@@ -105,7 +117,7 @@ function calculateCarbonFootprint(inputs) {
   const percentages = {};
   for (const cat in breakdown) {
     percentages[cat] = totalMonthlyCO2 > 0 
-      ? Math.round((breakdown[cat] / totalMonthlyCO2) * 100) 
+      ? Math.round((breakdown[cat] / totalMonthlyCO2) * PERCENTAGE_MULTIPLIER) 
       : 0;
   }
 

@@ -3,6 +3,13 @@
  * Contains pure validation helpers for checking and parsing CarbonLens API payloads.
  */
 
+// Validation Limits Constants
+const USERNAME_MAX_LENGTH = 30;
+const DISTANCE_MAX_LIMIT = 1000;
+const ELECTRICITY_MAX_LIMIT = 10000;
+const AC_HOURS_MAX_LIMIT = 24;
+const PERCENTAGE_MAX_LIMIT = 100;
+
 const VALID_TRANSPORT_TYPES = ['gasoline_car', 'diesel_car', 'electric_car', 'public_transport', 'bicycle_walking'];
 const VALID_DIET_TYPES = ['vegetarian', 'mixed', 'heavy_meat'];
 const VALID_SHOPPING_HABITS = ['infrequent', 'moderate', 'frequent'];
@@ -10,7 +17,7 @@ const VALID_RECYCLING_HABITS = ['always', 'sometimes', 'never'];
 
 /**
  * Validates username string and pattern.
- * @param {string} username 
+ * @param {string} username Raw username input
  * @returns {string|null} Error message or null if valid
  */
 function validateUsername(username) {
@@ -19,21 +26,21 @@ function validateUsername(username) {
   }
   const cleanUsername = username.trim();
   const usernameRegex = /^[a-zA-Z0-9_-]{1,30}$/;
-  if (!usernameRegex.test(cleanUsername)) {
-    return 'Username must be 1-30 characters long and contain only letters, numbers, underscores, or hyphens.';
+  if (!usernameRegex.test(cleanUsername) || cleanUsername.length > USERNAME_MAX_LENGTH) {
+    return `Username must be 1-${USERNAME_MAX_LENGTH} characters long and contain only letters, numbers, underscores, or hyphens.`;
   }
   return null;
 }
 
 /**
  * Validates carbon assessment form inputs.
- * @param {Object} inputs 
- * @returns {Object|null} Object containing parsed inputs, or { error } if invalid
+ * @param {Object} inputs Raw request payload
+ * @returns {Object} Object containing parsed inputs { parsedInputs }, or { error } if invalid
  */
 function validateAssessmentInputs(inputs) {
   const distNum = parseFloat(inputs.transportDistance);
-  if (isNaN(distNum) || distNum < 0 || distNum > 1000) {
-    return { error: 'Daily distance must be a positive number between 0 and 1000.' };
+  if (isNaN(distNum) || distNum < 0 || distNum > DISTANCE_MAX_LIMIT) {
+    return { error: `Daily distance must be a positive number between 0 and ${DISTANCE_MAX_LIMIT}.` };
   }
 
   if (!VALID_TRANSPORT_TYPES.includes(inputs.transportType)) {
@@ -45,13 +52,13 @@ function validateAssessmentInputs(inputs) {
   }
 
   const electricityNum = parseFloat(inputs.electricity);
-  if (isNaN(electricityNum) || electricityNum < 0 || electricityNum > 10000) {
-    return { error: 'Electricity usage must be a positive number between 0 and 10,000 kWh.' };
+  if (isNaN(electricityNum) || electricityNum < 0 || electricityNum > ELECTRICITY_MAX_LIMIT) {
+    return { error: `Electricity usage must be a positive number between 0 and ${ELECTRICITY_MAX_LIMIT} kWh.` };
   }
 
   const acHoursNum = parseFloat(inputs.acHours);
-  if (isNaN(acHoursNum) || acHoursNum < 0 || acHoursNum > 24) {
-    return { error: 'Daily AC usage must be a positive number between 0 and 24 hours.' };
+  if (isNaN(acHoursNum) || acHoursNum < 0 || acHoursNum > AC_HOURS_MAX_LIMIT) {
+    return { error: `Daily AC usage must be a positive number between 0 and ${AC_HOURS_MAX_LIMIT} hours.` };
   }
 
   if (!VALID_SHOPPING_HABITS.includes(inputs.shopping)) {
@@ -77,14 +84,14 @@ function validateAssessmentInputs(inputs) {
 
 /**
  * Validates habit simulation inputs against a user profile's baseline.
- * @param {Object} inputs 
+ * @param {Object} inputs Raw simulator request payload
  * @param {number} maxAcHours The user's original AC hours baseline
- * @returns {Object|null} Object containing parsed inputs, or { error } if invalid
+ * @returns {Object} Object containing parsed inputs { parsedInputs }, or { error } if invalid
  */
 function validateSimulationInputs(inputs, maxAcHours) {
   const transRed = parseFloat(inputs.transportReduction);
-  if (isNaN(transRed) || transRed < 0 || transRed > 100) {
-    return { error: 'Transportation reduction must be a percentage between 0 and 100.' };
+  if (isNaN(transRed) || transRed < 0 || transRed > PERCENTAGE_MAX_LIMIT) {
+    return { error: `Transportation reduction must be a percentage between 0 and ${PERCENTAGE_MAX_LIMIT}.` };
   }
 
   const acRed = parseFloat(inputs.acReduction);
@@ -107,8 +114,8 @@ function validateSimulationInputs(inputs, maxAcHours) {
 
 /**
  * Basic text sanitization to prevent script injection.
- * @param {string} text 
- * @returns {string} Sanitized text
+ * @param {string} text Raw string input
+ * @returns {string} Sanitized string
  */
 function sanitizeInput(text) {
   if (typeof text !== 'string') return '';

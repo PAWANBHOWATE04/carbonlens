@@ -160,6 +160,16 @@ graph TD
     Controller -->|Read/Write| JsonDb
 ```
 
+### Architectural Modules
+- **Controller Layer (`server/controllers/`)**: Manages the API endpoints, orchestrating validation, and coordinating between services.
+- **Service Layer (`server/services/`)**:
+  - `calculatorService.js`: Processes carbon emission factors and category breakdown percentages.
+  - `insightsService.js`: Scores and ranks dynamic eco-actions and timeline roadmaps.
+  - `coachService.js`: Tailors consultant coaching dialogues.
+  - `dbService.js`: Provides high-efficiency in-memory caching and serialized asynchronous file writes.
+- **Utility Layer (`server/utils/`)**: Encapsulates helper modules, including input schema validation and text sanitization filters (`validation.js`).
+- **Data Layer (`server/data/`)**: Stores a JSON database (`db.json`) synchronized safely with the memory cache.
+
 ---
 
 ## 8. User Flow Diagram
