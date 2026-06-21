@@ -4,6 +4,8 @@
  * data-backed consulting responses based on their current assessment profile.
  */
 
+const { EMISSION_FACTORS } = require('./calculatorService');
+
 /**
  * Generates a tailored response from the AI Decision Coach.
  * 
@@ -59,7 +61,7 @@ Since transportation is a significant factor in your lifestyle, ${recText} Shift
       return `Outstanding! You have adopted a **vegetarian** diet, which keeps your food footprint at a low **${co2} kg CO₂** per month (**${pct}%** of your total). Plant-based eating has a massive reduction effect. If you want to challenge yourself further, try replacing dairy or shopping for locally sourced produce to minimize transport emissions related to food distribution.`;
     }
 
-    const savings = diet === 'heavy_meat' ? (250 - 80) * 12 : (150 - 80) * 12;
+    const savings = (EMISSION_FACTORS.food[assessment.dietType] - EMISSION_FACTORS.food.vegetarian) * 12;
 
     return `Your diet is currently set as **${diet}**, which contributes **${co2} kg CO₂** per month (**${pct}%** of your total emissions).
 
@@ -75,7 +77,7 @@ Animal-based agriculture is resource-intensive. Switching to a plant-based or ve
 
     let advice = '';
     if (ac > 0) {
-      advice += `Your daily AC usage of **${ac} hours** contributes significantly to this. Reducing AC usage by just 2 hours daily could cut your annual emissions by **${Math.round(Math.min(ac, 2) * 18 * 12)} kg CO₂**! `;
+      advice += `Your daily AC usage of **${ac} hours** contributes significantly to this. Reducing AC usage by just 2 hours daily could cut your annual emissions by **${Math.round(Math.min(ac, 2) * EMISSION_FACTORS.acHour * 12)} kg CO₂**! `;
     }
     advice += `Additionally, turning off standby appliances and switching to LED lightbulbs can shave off 20% of your electricity consumption (${ele} kWh/month).`;
 
@@ -94,7 +96,9 @@ ${advice} Energy-saving settings on refrigerators and washing in cold water are 
       return `Great work! Your shopping habit is categorized as **infrequent**, keeping your consumption emissions at **${co2} kg CO₂** per month (**${pct}%** of your total). Limiting new purchases, buying high-quality items that last, and prioritizing second-hand items is key to maintaining a circular lifestyle.`;
     }
 
-    const savings = shop === 'frequent' ? (250 - 100) * 12 : (100 - 30) * 12;
+    const savings = shop === 'frequent'
+      ? (EMISSION_FACTORS.shopping.frequent - EMISSION_FACTORS.shopping.moderate) * 12
+      : (EMISSION_FACTORS.shopping.moderate - EMISSION_FACTORS.shopping.infrequent) * 12;
 
     return `Your consumption habits are categorized as **${shop}**, which generates **${co2} kg CO₂** per month (**${pct}%** of your footprint). 
 
@@ -111,7 +115,9 @@ Manufacturing, packaging, and shipping new products represent a large amount of 
       return `Awesome! You **always** recycle, which reduces your waste footprint to just **${co2} kg CO₂** per month (**${pct}%** of your total). Composting organic food waste is another high-value step. Organic waste in landfills releases methane, a potent greenhouse gas, whereas home composting turns it into rich soil!`;
     }
 
-    const savings = rec === 'never' ? (50 - 10) * 12 : (25 - 10) * 12;
+    const savings = rec === 'never'
+      ? (EMISSION_FACTORS.waste.never - EMISSION_FACTORS.waste.always) * 12
+      : (EMISSION_FACTORS.waste.sometimes - EMISSION_FACTORS.waste.always) * 12;
 
     return `Your recycling habit is **${rec}**, which contributes **${co2} kg CO₂** per month (**${pct}%** of your total footprint). 
 

@@ -106,8 +106,8 @@
           "id": "plant_based_monday",
           "name": "Plant-Based Monday",
           "points": 40,
-          "completed": false,
-          "streak": 0
+          "completed": true,
+          "streak": 1
         },
         {
           "id": "reusable_bottle",
@@ -117,9 +117,20 @@
           "streak": 0
         }
       ],
-      "points": 50,
+      "points": 90,
       "streak": 1,
-      "chatHistory": []
+      "chatHistory": [
+        {
+          "role": "user",
+          "text": "How can I reduce my transportation emissions?",
+          "timestamp": "2026-06-21T15:55:22.827Z"
+        },
+        {
+          "role": "coach",
+          "text": "I see you currently travel **45 km daily** using a **gasoline car**. This transportation habit produces **243 kg CO₂** per month, representing **28%** of your total footprint. \n\nSince transportation is a significant factor in your lifestyle, I recommend taking action: **Use Public Transit or Carpool**. By doing this, you could reduce your annual emissions by approximately **907 kg CO₂**! Shifting just 2 days of weekly travel to active transit (walking or cycling) or public transport is an excellent next step. You could also try joining our **No-Car Friday** challenge to build the habit.",
+          "timestamp": "2026-06-21T15:55:22.827Z"
+        }
+      ]
     }
   }
 }

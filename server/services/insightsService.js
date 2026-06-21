@@ -4,6 +4,8 @@
  * dynamic actions ranking, and a progressive sustainability roadmap.
  */
 
+const { EMISSION_FACTORS } = require('./calculatorService');
+
 const DIFFICULTY_WEIGHTS = {
   'Easy': 1.0,
   'Medium': 1.5,
@@ -63,13 +65,13 @@ function generateInsights(inputs, results) {
   const transportDistance = parseFloat(inputs.transportDistance) || 0;
   const transportType = inputs.transportType || 'gasoline_car';
   if (transportDistance > 0 && transportType !== 'bicycle_walking') {
-    let currentFactor = 0.18; // gasoline fallback
-    if (transportType === 'diesel_car') currentFactor = 0.17;
-    else if (transportType === 'electric_car') currentFactor = 0.05;
-    else if (transportType === 'public_transport') currentFactor = 0.04;
+    const currentFactor = EMISSION_FACTORS.transport[transportType] !== undefined 
+      ? EMISSION_FACTORS.transport[transportType] 
+      : EMISSION_FACTORS.transport.gasoline_car;
 
+    const publicTransportFactor = EMISSION_FACTORS.transport.public_transport;
     // Simulate replacing 3 days of car/transit travel per week (~40% reduction) with public transport/active transit
-    const reductionFactor = currentFactor > 0.04 ? (currentFactor - 0.04) : currentFactor;
+    const reductionFactor = currentFactor > publicTransportFactor ? (currentFactor - publicTransportFactor) : currentFactor;
     const annualSaving = Math.round(transportDistance * 30 * reductionFactor * 0.4 * 12);
     
     if (annualSaving > 10) {
@@ -88,12 +90,11 @@ function generateInsights(inputs, results) {
   // Action 2: Diet Shift
   const dietType = inputs.dietType || 'mixed';
   if (dietType !== 'vegetarian') {
-    let saving = 0;
-    if (dietType === 'heavy_meat') {
-      saving = (250 - 80) * 12; // Heavy meat to Vegetarian
-    } else if (dietType === 'mixed') {
-      saving = (150 - 80) * 12; // Mixed to Vegetarian
-    }
+    const currentDietEmissions = EMISSION_FACTORS.food[dietType] !== undefined 
+      ? EMISSION_FACTORS.food[dietType] 
+      : EMISSION_FACTORS.food.mixed;
+    const vegetarianEmissions = EMISSION_FACTORS.food.vegetarian;
+    const saving = (currentDietEmissions - vegetarianEmissions) * 12;
 
     candidates.push({
       id: 'diet_shift',
@@ -109,7 +110,7 @@ function generateInsights(inputs, results) {
   // Action 3: Optimize AC Use
   const acHours = parseFloat(inputs.acHours) || 0;
   if (acHours > 0) {
-    const saving = Math.round(Math.min(acHours, 2) * 18 * 12); // Reduce AC by up to 2 hours daily
+    const saving = Math.round(Math.min(acHours, 2) * EMISSION_FACTORS.acHour * 12); // Reduce AC by up to 2 hours daily
     candidates.push({
       id: 'ac_optimize',
       name: 'Optimize Air Conditioning',
@@ -124,7 +125,7 @@ function generateInsights(inputs, results) {
   // Action 4: Energy Efficiency
   const electricity = parseFloat(inputs.electricity) || 0;
   if (electricity > 0) {
-    const saving = Math.round(electricity * 0.4 * 0.20 * 12); // Save 20% of electricity
+    const saving = Math.round(electricity * EMISSION_FACTORS.electricity * 0.20 * 12); // Save 20% of electricity
     candidates.push({
       id: 'electricity_efficient',
       name: 'Upgrade to Energy-Efficient LEDs & Standby Management',
@@ -141,9 +142,9 @@ function generateInsights(inputs, results) {
   if (shopping !== 'infrequent') {
     let saving = 0;
     if (shopping === 'frequent') {
-      saving = (250 - 100) * 12; // Frequent to Moderate
+      saving = (EMISSION_FACTORS.shopping.frequent - EMISSION_FACTORS.shopping.moderate) * 12;
     } else if (shopping === 'moderate') {
-      saving = (100 - 30) * 12; // Moderate to Infrequent
+      saving = (EMISSION_FACTORS.shopping.moderate - EMISSION_FACTORS.shopping.infrequent) * 12;
     }
 
     candidates.push({
@@ -160,12 +161,11 @@ function generateInsights(inputs, results) {
   // Action 6: Recycling & Composting
   const recycling = inputs.recycling || 'sometimes';
   if (recycling !== 'always') {
-    let saving = 0;
-    if (recycling === 'never') {
-      saving = (50 - 10) * 12; // Never to Always
-    } else if (recycling === 'sometimes') {
-      saving = (25 - 10) * 12; // Sometimes to Always
-    }
+    const currentWasteEmissions = EMISSION_FACTORS.waste[recycling] !== undefined 
+      ? EMISSION_FACTORS.waste[recycling] 
+      : EMISSION_FACTORS.waste.sometimes;
+    const alwaysWasteEmissions = EMISSION_FACTORS.waste.always;
+    const saving = (currentWasteEmissions - alwaysWasteEmissions) * 12;
 
     candidates.push({
       id: 'waste_recycle',

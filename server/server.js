@@ -29,8 +29,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Start listening if not running on Vercel
-if (!process.env.VERCEL) {
+// Start listening if not running on Vercel and not in test environment
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`===================================================`);
     console.log(`🌲 CarbonLens Server is running on port ${PORT}`);

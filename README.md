@@ -6,7 +6,7 @@ See Your Impact. Shape a Greener Future.
 
 [![Submission-Ready](https://img.shields.io/badge/Prompt%20Wars-Challenge--3-emerald?style=for-the-badge)](https://github.com/PAWANBHOWATE04/carbonlens)
 [![Vercel-Compatible](https://img.shields.io/badge/Vercel-Live--Demo-blue?style=for-the-badge&logo=vercel)](https://carbonlens-pawanbhowate04.vercel.app)
-[![Testing](https://img.shields.io/badge/Jest-6%2F6%20Passed-brightgreen?style=for-the-badge&logo=jest)](https://jestjs.io)
+[![Testing](https://img.shields.io/badge/Jest-17%2F17%20Passed-brightgreen?style=for-the-badge&logo=jest)](https://jestjs.io)
 [![Stack](https://img.shields.io/badge/Stack-Node%20%7C%20Express%20%7C%20Tailwind-indigo?style=for-the-badge&logo=node.js)](https://nodejs.org)
 [![A11y](https://img.shields.io/badge/Accessibility-A11y--Compliant-violet?style=for-the-badge)](https://w3c.github.io/aria/)
 
@@ -233,6 +233,7 @@ Automated tests are implemented using Jest:
 *   **Calculator tests (`tests/calculator.test.js`)**: Verifies calculations and ratings against high, medium, and low-emission profiles.
 *   **Insights tests (`tests/insights.test.js`)**: Confirms contributor highlights, sorted Top 3 recommendations, and roadmap milestones.
 *   **Simulator tests (`tests/simulator.test.js`)**: Validates predicted habit modifications.
+*   **API Integration tests (`tests/api.test.js`)**: Verifies Express routes, input validation errors, database caching, streak rewards, and coach dialog outputs using `supertest`.
 
 Run the test suite locally with:
 ```bash
@@ -268,14 +269,18 @@ carbonlens/
 │   ├── services/
 │   │   ├── calculatorService.js
 │   │   ├── insightsService.js
-│   │   └── coachService.js
+│   │   ├── coachService.js
+│   │   └── dbService.js
+│   ├── utils/
+│   │   └── validation.js
 │   └── data/
 │       └── db.json
 │
 ├── tests/
 │   ├── calculator.test.js
 │   ├── insights.test.js
-│   └── simulator.test.js
+│   ├── simulator.test.js
+│   └── api.test.js
 │
 ├── package.json
 ├── vercel.json

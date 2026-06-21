@@ -1,113 +1,38 @@
 /**
  * Carbon Controller
- * Manages database reading/writing, request validation, sanitization,
- * and coordinates service execution.
+ * Handles incoming requests, orchestrates validation, and coordinates service executions.
+ * Completely asynchronous and modular.
  */
 
-const fs = require('fs');
-const path = require('path');
 const calculatorService = require('../services/calculatorService');
 const insightsService = require('../services/insightsService');
 const coachService = require('../services/coachService');
-
-const DB_PATH = path.join(__dirname, '../data/db.json');
-
-// --- Helper Functions ---
-
-/**
- * Safely reads the JSON database from disk.
- * If file does not exist, returns empty structure.
- */
-function readDb() {
-  try {
-    if (!fs.existsSync(DB_PATH)) {
-      return { users: {} };
-    }
-    const rawData = fs.readFileSync(DB_PATH, 'utf8');
-    return JSON.parse(rawData);
-  } catch (error) {
-    console.error('Error reading JSON database:', error);
-    return { users: {} };
-  }
-}
-
-/**
- * Safely writes data to the JSON database.
- */
-function writeDb(data) {
-  try {
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
-    return true;
-  } catch (error) {
-    console.error('Error writing to JSON database:', error);
-    return false;
-  }
-}
-
-/**
- * Returns a default user profile object.
- */
-function createDefaultProfile(username) {
-  return {
-    username: username,
-    assessment: null,
-    results: null,
-    insights: null,
-    challenges: [
-      { id: 'no_car_friday', name: 'No-Car Friday', points: 50, completed: false, streak: 0 },
-      { id: 'plant_based_monday', name: 'Plant-Based Monday', points: 40, completed: false, streak: 0 },
-      { id: 'reusable_bottle', name: 'Reusable Bottle Week', points: 20, completed: false, streak: 0 }
-    ],
-    points: 0,
-    streak: 0,
-    chatHistory: []
-  };
-}
-
-/**
- * Basic text sanitization to prevent script injection.
- */
-function sanitizeInput(text) {
-  if (typeof text !== 'string') return '';
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
-}
-
-// --- Controller Actions ---
+const dbService = require('../services/dbService');
+const validation = require('../utils/validation');
 
 /**
  * Login or register a user by username.
  */
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
   try {
-    let { username } = req.body;
-    if (!username || typeof username !== 'string') {
-      return res.status(400).json({ error: 'Username is required and must be a string.' });
+    const { username } = req.body;
+    
+    const valError = validation.validateUsername(username);
+    if (valError) {
+      return res.status(400).json({ error: valError });
     }
 
-    // Sanitize username (alphanumeric, 1-30 chars, no spaces)
-    username = username.trim();
-    const usernameRegex = /^[a-zA-Z0-9_-]{1,30}$/;
-    if (!usernameRegex.test(username)) {
-      return res.status(400).json({ 
-        error: 'Username must be 1-30 characters long and contain only letters, numbers, underscores, or hyphens.' 
-      });
+    const cleanUsername = username.trim();
+    let profile = dbService.getProfile(cleanUsername);
+
+    if (!profile) {
+      profile = dbService.createDefaultProfile(cleanUsername);
+      await dbService.saveProfile(cleanUsername, profile);
     }
 
-    const db = readDb();
-    if (!db.users[username]) {
-      db.users[username] = createDefaultProfile(username);
-      writeDb(db);
-    }
-
-    return res.status(200).json(db.users[username]);
+    return res.status(200).json(profile);
   } catch (err) {
-    console.error(err);
+    console.error('Login error:', err);
     return res.status(500).json({ error: 'An internal server error occurred.' });
   }
 };
@@ -115,91 +40,42 @@ exports.login = (req, res) => {
 /**
  * Submit carbon footprint assessment and update insights.
  */
-exports.submitAssessment = (req, res) => {
+exports.submitAssessment = async (req, res) => {
   try {
-    const { 
-      username, 
-      transportDistance, 
-      transportType, 
-      dietType, 
-      electricity, 
-      acHours, 
-      shopping, 
-      recycling 
-    } = req.body;
-
+    const { username } = req.body;
     if (!username) {
       return res.status(400).json({ error: 'Username is required.' });
     }
 
-    const db = readDb();
-    if (!db.users[username]) {
+    const userProfile = dbService.getProfile(username);
+    if (!userProfile) {
       return res.status(404).json({ error: 'User profile not found.' });
     }
 
     // Input Validation
-    const distNum = parseFloat(transportDistance);
-    if (isNaN(distNum) || distNum < 0 || distNum > 1000) {
-      return res.status(400).json({ error: 'Daily distance must be a positive number between 0 and 1000.' });
+    const validationResult = validation.validateAssessmentInputs(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error });
     }
 
-    const validTransportTypes = ['gasoline_car', 'diesel_car', 'electric_car', 'public_transport', 'bicycle_walking'];
-    if (!validTransportTypes.includes(transportType)) {
-      return res.status(400).json({ error: 'Invalid vehicle transport type specified.' });
-    }
-
-    const validDietTypes = ['vegetarian', 'mixed', 'heavy_meat'];
-    if (!validDietTypes.includes(dietType)) {
-      return res.status(400).json({ error: 'Invalid diet type specified.' });
-    }
-
-    const electricityNum = parseFloat(electricity);
-    if (isNaN(electricityNum) || electricityNum < 0 || electricityNum > 10000) {
-      return res.status(400).json({ error: 'Electricity usage must be a positive number between 0 and 10,000 kWh.' });
-    }
-
-    const acHoursNum = parseFloat(acHours);
-    if (isNaN(acHoursNum) || acHoursNum < 0 || acHoursNum > 24) {
-      return res.status(400).json({ error: 'Daily AC usage must be a positive number between 0 and 24 hours.' });
-    }
-
-    const validShopping = ['infrequent', 'moderate', 'frequent'];
-    if (!validShopping.includes(shopping)) {
-      return res.status(400).json({ error: 'Invalid shopping consumption habits specified.' });
-    }
-
-    const validRecycling = ['always', 'sometimes', 'never'];
-    if (!validRecycling.includes(recycling)) {
-      return res.status(400).json({ error: 'Invalid recycling habits specified.' });
-    }
-
-    // Package assessment data
-    const assessmentInputs = {
-      transportDistance: distNum,
-      transportType,
-      dietType,
-      electricity: electricityNum,
-      acHours: acHoursNum,
-      shopping,
-      recycling
-    };
+    const { parsedInputs } = validationResult;
 
     // Calculate results
-    const results = calculatorService.calculateCarbonFootprint(assessmentInputs);
+    const results = calculatorService.calculateCarbonFootprint(parsedInputs);
     
     // Generate AI recommendations, Top Actions, and Roadmap
-    const insights = insightsService.generateInsights(assessmentInputs, results);
+    const insights = insightsService.generateInsights(parsedInputs, results);
 
     // Save user profile state
-    db.users[username].assessment = assessmentInputs;
-    db.users[username].results = results;
-    db.users[username].insights = insights;
+    userProfile.assessment = parsedInputs;
+    userProfile.results = results;
+    userProfile.insights = insights;
 
-    writeDb(db);
+    await dbService.saveProfile(username, userProfile);
 
-    return res.status(200).json(db.users[username]);
+    return res.status(200).json(userProfile);
   } catch (err) {
-    console.error(err);
+    console.error('Submit assessment error:', err);
     return res.status(500).json({ error: 'An internal server error occurred.' });
   }
 };
@@ -207,7 +83,7 @@ exports.submitAssessment = (req, res) => {
 /**
  * Toggle sustainability challenge completion and recalculate user points and streak.
  */
-exports.toggleChallenge = (req, res) => {
+exports.toggleChallenge = async (req, res) => {
   try {
     const { username, challengeId, completed } = req.body;
 
@@ -215,8 +91,7 @@ exports.toggleChallenge = (req, res) => {
       return res.status(400).json({ error: 'Username and challenge ID are required.' });
     }
 
-    const db = readDb();
-    const user = db.users[username];
+    const user = dbService.getProfile(username);
     if (!user) {
       return res.status(404).json({ error: 'User profile not found.' });
     }
@@ -236,19 +111,18 @@ exports.toggleChallenge = (req, res) => {
       if (targetsCompleted) {
         user.points += challenge.points;
         challenge.streak += 1;
-        user.streak = Math.max(...user.challenges.map(c => c.streak));
       } else {
         user.points = Math.max(0, user.points - challenge.points);
         challenge.streak = Math.max(0, challenge.streak - 1);
-        user.streak = Math.max(...user.challenges.map(c => c.streak));
       }
+      user.streak = Math.max(...user.challenges.map(c => c.streak));
 
-      writeDb(db);
+      await dbService.saveProfile(username, user);
     }
 
     return res.status(200).json(user);
   } catch (err) {
-    console.error(err);
+    console.error('Toggle challenge error:', err);
     return res.status(500).json({ error: 'An internal server error occurred.' });
   }
 };
@@ -256,16 +130,15 @@ exports.toggleChallenge = (req, res) => {
 /**
  * Handle live impact simulations without modifying the persistent database record.
  */
-exports.simulateFootprint = (req, res) => {
+exports.simulateFootprint = async (req, res) => {
   try {
-    const { username, transportReduction, acReduction, dietType } = req.body;
+    const { username } = req.body;
 
     if (!username) {
       return res.status(400).json({ error: 'Username is required.' });
     }
 
-    const db = readDb();
-    const user = db.users[username];
+    const user = dbService.getProfile(username);
     if (!user || !user.assessment || !user.results) {
       return res.status(400).json({ 
         error: 'Please complete your initial Carbon Assessment before using the Simulator.' 
@@ -273,28 +146,16 @@ exports.simulateFootprint = (req, res) => {
     }
 
     // Validations
-    const transRed = parseFloat(transportReduction);
-    if (isNaN(transRed) || transRed < 0 || transRed > 100) {
-      return res.status(400).json({ error: 'Transportation reduction must be a percentage between 0 and 100.' });
+    const validationResult = validation.validateSimulationInputs(req.body, user.assessment.acHours);
+    if (validationResult.error) {
+      return res.status(400).json({ error: validationResult.error });
     }
 
-    const acRed = parseFloat(acReduction);
-    if (isNaN(acRed) || acRed < 0 || acRed > user.assessment.acHours) {
-      return res.status(400).json({ 
-        error: `AC reduction hours must be between 0 and your current daily AC hours (${user.assessment.acHours}).` 
-      });
-    }
-
-    const validDiets = ['vegetarian', 'mixed', 'heavy_meat'];
-    if (!validDiets.includes(dietType)) {
-      return res.status(400).json({ error: 'Invalid simulated diet type specified.' });
-    }
+    const { transportReduction, acReduction, dietType } = validationResult.parsedInputs;
 
     // Construct simulated inputs
-    // Reduce daily travel distance by simulated %
-    const simulatedDistance = user.assessment.transportDistance * (1 - transRed / 100);
-    // Reduce daily AC hours by simulated amount
-    const simulatedACHours = Math.max(0, user.assessment.acHours - acRed);
+    const simulatedDistance = user.assessment.transportDistance * (1 - transportReduction / 100);
+    const simulatedACHours = Math.max(0, user.assessment.acHours - acReduction);
 
     const simulatedInputs = {
       transportDistance: simulatedDistance,
@@ -325,7 +186,7 @@ exports.simulateFootprint = (req, res) => {
       simulatedBreakdown: simulatedResults.breakdown
     });
   } catch (err) {
-    console.error(err);
+    console.error('Simulate footprint error:', err);
     return res.status(500).json({ error: 'An internal server error occurred.' });
   }
 };
@@ -333,7 +194,7 @@ exports.simulateFootprint = (req, res) => {
 /**
  * Post a chat message to the Decision Coach and get a tailored response.
  */
-exports.postCoachMessage = (req, res) => {
+exports.postCoachMessage = async (req, res) => {
   try {
     const { username, message } = req.body;
 
@@ -341,13 +202,12 @@ exports.postCoachMessage = (req, res) => {
       return res.status(400).json({ error: 'Username and a valid message string are required.' });
     }
 
-    const db = readDb();
-    const user = db.users[username];
+    const user = dbService.getProfile(username);
     if (!user) {
       return res.status(404).json({ error: 'User profile not found.' });
     }
 
-    const sanitizedMsg = sanitizeInput(message);
+    const sanitizedMsg = validation.sanitizeInput(message);
     const responseText = coachService.getCoachResponse(sanitizedMsg, user);
 
     // Save message pair in history (capped at 50 messages to keep DB small)
@@ -358,14 +218,14 @@ exports.postCoachMessage = (req, res) => {
       user.chatHistory.splice(0, 2);
     }
 
-    writeDb(db);
+    await dbService.saveProfile(username, user);
 
     return res.status(200).json({
       reply: responseText,
       chatHistory: user.chatHistory
     });
   } catch (err) {
-    console.error(err);
+    console.error('Post coach message error:', err);
     return res.status(500).json({ error: 'An internal server error occurred.' });
   }
 };
